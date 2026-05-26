@@ -25,7 +25,7 @@ public class Cell {
 
     }
 
-    public void containShip () {
+    public boolean containShip () {
         return ship != null;
     }
 }
