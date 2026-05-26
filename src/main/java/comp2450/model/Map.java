@@ -1,4 +1,4 @@
-package comp2450;
+package comp2450.model;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package comp2450;
+package comp2450.logic;
 
 public class Game {
 
