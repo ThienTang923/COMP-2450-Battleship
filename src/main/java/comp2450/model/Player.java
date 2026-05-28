@@ -7,16 +7,16 @@ public class Player {
     private List<Ship> ships;
     private int successfulHits;
     private int missedAttacks;
-    private Map map;
+    private Board board;
 
-    public Player(String playerName, Map map) {
+    public Player(String playerName, Board board) {
 
         Precondition.checkNotNull(playerName,"player name cannot be null");
         Precondition.checkArgument(!playerName.isBlank(),"player name cannot be empty");
-        Precondition.checkNotNull(map,"map can not be null");
+        Precondition.checkNotNull(board,"map can not be null");
 
         this.playerName = playerName;
-        this.map = map;
+        this.board = board;
         this.ship = new ArrayList<>();
         this.successfulHits = 0;
         this.missedAttacks = 0;
@@ -52,8 +52,8 @@ public class Player {
         return ships;
     }
 
-    public Map getMap() {
-        return map;
+    public Board getMap() {
+        return board;
     }
 
     public int getSuccessfulHits() {

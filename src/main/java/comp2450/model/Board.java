@@ -2,7 +2,7 @@ package comp2450.model;
 
 import java.util.ArrayList;
 
-public class Map {
+public class Board {
     int xSize;
     int ySize;
     Cell cells;
