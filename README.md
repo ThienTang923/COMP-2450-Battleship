@@ -16,7 +16,12 @@ This model represents the basic version of Battleship first. It can later be exp
 
 [Battleship]: https://en.wikipedia.org/wiki/Battleship_(game)
 
-# Domain Model
+## REPL
+
+### Building and Running the REPL
+
+The project has been built and tested to be run in IntelliJ. Open the project there, open "comp2450" folder, then the 
+## Domain Model
 
 The classic Battleship game contains two players. Each player has their own board and a collection of ships. A board is made up of cells, and each cell represents one coordinate on the grid. A ship occupies one or more cells on a player’s board. During the game, players make attacks by choosing coordinates on the opponent’s board.
 
