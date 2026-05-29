@@ -1,6 +1,7 @@
 package comp2450.model;
 
 import java.util.List;
+import com.google.common.base.Preconditions;
 
 public class Ship {
 
@@ -11,9 +12,9 @@ public class Ship {
 
     public Ship(int size, List<Coordinate> coordinates) {
 
-        Precondition.checkArgument(size >0, "size must be positive");
-        Precondition.checkNotNull(coordinates, "coordinates cannot be null");
-        Precondition.checkArgument(coordinates.size() == size, "cooridnate must match ship size");
+        Preconditions.checkArgument(size >0, "size must be positive");
+        Preconditions.checkNotNull(coordinates, "coordinates cannot be null");
+        Preconditions.checkArgument(coordinates.size() == size, "cooridnate must match ship size");
 
         this.size = size;
         this.health = health;
@@ -23,19 +24,19 @@ public class Ship {
 
     public void move(List<Coordinate> newCoordinates) {
 
-        Precondition.checkNotNull(newCoordinates);
-        Precondition.checkArgument(newCoordinates.size() == size, "new cooridnates must match ship size");
+        Preconditions.checkNotNull(newCoordinates);
+        Preconditions.checkArgument(newCoordinates.size() == size, "new cooridnates must match ship size");
 
         this.coordinates = newCoordinates;
     }
 
     public void takeDamage() {
-        Precondition.checkState(currentHealth > 0, "ship is already destroyed");
+        Preconditions.checkState(currentHealth > 0, "ship is already destroyed");
 
         currentHealth--;
     }
 
-    public void isSunk() {
+    public boolean isSunk() {
         return currentHealth ==0;
     }
 

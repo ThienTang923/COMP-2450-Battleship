@@ -1,6 +1,8 @@
 package comp2450.model;
 
+import java.util.ArrayList;
 import java.util.List;
+import com.google.common.base.Preconditions;
 
 public class Player {
     private String playerName;
@@ -11,27 +13,27 @@ public class Player {
 
     public Player(String playerName, Board board) {
 
-        Precondition.checkNotNull(playerName,"player name cannot be null");
-        Precondition.checkArgument(!playerName.isBlank(),"player name cannot be empty");
-        Precondition.checkNotNull(board,"map can not be null");
+        Preconditions.checkNotNull(playerName,"player name cannot be null");
+        Preconditions.checkArgument(!playerName.isBlank(),"player name cannot be empty");
+        Preconditions.checkNotNull(board,"map can not be null");
 
         this.playerName = playerName;
         this.board = board;
-        this.ship = new ArrayList<>();
+        this.ships = new ArrayList<>();
         this.successfulHits = 0;
         this.missedAttacks = 0;
     }
 
-    public voi addShip(Ship ship) {
+    public void addShip(Ship ship) {
 
-        Precondition.checkNotNull(ship, "ship cannot be null");
+        Preconditions.checkNotNull(ship, "ship cannot be null");
         ships.add(ship);
     }
 
     public void moveShip(Ship ship, List<Coordinate> newCoordinates) {
 
-        Precondition.checkNotNull(ship);
-        Precondition.checkArgument(ships.contains(ship),"player does not own the ship");
+        Preconditions.checkNotNull(ship);
+        Preconditions.checkArgument(ships.contains(ship),"player does not own the ship");
 
         ship.move(newCoordinates);
     }
@@ -66,7 +68,7 @@ public class Player {
 
     public void placeShip(Ship ship) {
 
-        Precondition.checkNotNull(ship);
+        Preconditions.checkNotNull(ship);
         ships.add(ship);
     }
 }

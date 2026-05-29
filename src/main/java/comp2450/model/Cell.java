@@ -1,14 +1,16 @@
 package comp2450.model;
 
+import com.google.common.base.Preconditions;
+
 public class Cell {
 
     private Coordinate coordinate;
     private Ship ship;
-    private Status attackedStatus;
+    private boolean attacked;
 
     public Cell(Coordinate coordinate) {
 
-        Precondition.checkNotNull(coordinate, "coordinate cannot be null");
+        Preconditions.checkNotNull(coordinate, "coordinate cannot be null");
 
         this.coordinate = coordinate;
         this.ship = null;
@@ -16,8 +18,8 @@ public class Cell {
     }
 
     public void placeShip(Ship ship) {
-        Precondition.checkNotNull(ship, "Ship cannot be null");
-        Precondition.checkState(this.ship == null, "Cell already has a ship");
+        Preconditions.checkNotNull(ship, "Ship cannot be null");
+        Preconditions.checkState(this.ship == null, "Cell already has a ship");
 
         this.ship = ship;
     }
@@ -32,11 +34,11 @@ public class Cell {
     }
 
     public void markAttacked() {
-        this.attack = true;
+        this.attacked = true;
     }
 
     public boolean isAttacked() {
-        return this.attack;
+        return this.attacked;
     }
 
     public Ship getShip() {
@@ -44,6 +46,6 @@ public class Cell {
     }
 
     public Coordinate getCoordinate() {
-        return this.cooridnate;
+        return this.coordinate;
     }
 }
