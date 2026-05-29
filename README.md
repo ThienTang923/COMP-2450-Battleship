@@ -21,6 +21,35 @@ This model represents the basic version of Battleship first. It can later be exp
 ### Building and Running the REPL
 
 The project has been built and tested to be run in IntelliJ. Open the project there, open "comp2450" folder, then the 
+
+## Commands
+
+The REPL supports the following commands:
+* `HELP` — Shows all available commands and input formats.
+* `ADD PLAYER` — Adds a new player by name.
+* `ADD GAME` — Creates a new game using two existing players.
+* `SELECT BOARD` — Selects the current board by player name.
+* `ADD SHIP` — Adds a ship to the selected board.
+* `ADD EFFECT` — Adds an effect to the selected board.
+* `SHOW GAME` — Displays both boards and player information.
+* `SHOW SHIPS` — Displays all ships in the current game.
+* `SHOW EFFECTS` — Displays all effects in the current game.
+* `MOVE SHIP` — Moves a selected ship to new coordinates.
+* `REMOVE SHIP` — Removes a selected ship.
+* `REMOVE EFFECT` — Removes a selected effect.
+* `REMOVE GAME` — Deletes the current game.
+* `EXIT` — Exits the REPL.
+
+## Changes
+
+During implementation, I have made several changes to the original domain model in Phase 1
+
+* Renamed `Map` to `Board` because Java already has a built-in `Map` interface, so I used `Board` to avoid with the built-in and better represents the Battleship game area.
+* Changed abstract types such as `Name`, `WholeNumber`, and `PositiveNumber` into concrete Java types such as `String` and `int`.
+* Changed `Cell cells` into `Cell[][] cells` because the board is implemented as a two-dimensional grid.
+* Changed `Status attackStatus` in `Cell` into `boolean attacked` because cell attack state only needs to represent attacked or not attacked.
+* Added REPL, input, and output classes to separate user interaction from the domain model.
+* Used Guava `Preconditions` to enforce invariants in constructors and methods.
 ## Domain Model
 
 The classic Battleship game contains two players. Each player has their own board and a collection of ships. A board is made up of cells, and each cell represents one coordinate on the grid. A ship occupies one or more cells on a player’s board. During the game, players make attacks by choosing coordinates on the opponent’s board.
@@ -120,12 +149,16 @@ classDiagram
     }
     
     class Game {
+        Game instance
         Player player1
         Player player2
         Turn currentTurn
         Status gameStatus
         
-        startGame()
+        Game(Player player1, Player player2)
+        getInstance(Player player1, Player player2)
+        removeGame()
+        
         switchTurn()
         checkWinner()
     }
