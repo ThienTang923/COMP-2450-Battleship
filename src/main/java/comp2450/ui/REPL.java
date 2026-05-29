@@ -1,5 +1,7 @@
 package comp2450.ui;
 
+import comp2450.output.GamePrinter;
+
 import java.util.Scanner;
 
 public class REPL {
@@ -10,6 +12,8 @@ public class REPL {
 
         boolean running = true;
 
+        System.out.println("Welcome to Battleship++");
+
         while (running) {
 
             System.out.print("> ");
@@ -18,9 +22,11 @@ public class REPL {
             switch (command.toUpperCase()) {
 
                 case "HELP":
-                    printHelp();
+                    GamePrinter.printHelp();
                     break;
 
+                case "SHOW GAME":
+                    break;
                 case "EXIT":
                     running = false;
                     break;
