@@ -1,6 +1,7 @@
 package comp2450.logic;
 
 import com.google.common.base.Preconditions;
+import comp2450.model.Board;
 import comp2450.model.Player;
 import comp2450.model.Status;
 import comp2450.model.Turn;
@@ -12,8 +13,14 @@ public class Game {
     private Player player2;
     private Turn currentTurn;
     private Status gameStatus;
+    private Board selectBoard;
 
     private Game(Player player1, Player player2) {
+
+        Preconditions.checkNotNull(player1,"player1 cannot be null");
+        Preconditions.checkNotNull(player2,"player2 cannot be null");
+        Preconditions.checkArgument(player1 != player2, "players must be different");
+
         this.player1 = player1;
         this.player2 = player2;
         this.currentTurn = Turn.PLAYER_ONE;
@@ -21,10 +28,6 @@ public class Game {
     }
 
     public static Game getInstance(Player player1, Player player2) {
-
-        Preconditions.checkNotNull(player1,"player1 cannot be null");
-        Preconditions.checkNotNull(player2,"player2 cannot be null");
-        Preconditions.checkArgument(player1 != player2, "players must be different");
 
         if (instance == null) {
             instance = new Game(player1, player2);
@@ -79,4 +82,11 @@ public class Game {
             currentTurn = Turn.PLAYER_ONE;
         }
     }
+
+    public Board getSelectBoard() {
+
+        Preconditions.checkNotNull(selectBoard, "no board is selected");
+        return selectBoard;
+    }
+
 }
