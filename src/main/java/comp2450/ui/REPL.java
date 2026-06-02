@@ -386,4 +386,31 @@ public class REPL {
         System.out.println("Ship moved.");
     }
 
+    private static void removeShip(Scanner scanner) {
+        if (!hasSelectBoard()) {
+            return;
+        }
+
+        if (selectBoard.getShips().isEmpty()) {
+            System.out.println("No ships on selected board.");
+            return;
+        }
+
+        GamePrinter.printShips(selectBoard);
+
+        System.out.print("Enter ship id: ");
+        int index = readInt(scanner);
+
+        if (index < 0 || index >= selectBoard.getShips().size()) {
+            System.out.println("Invalid ship id.");
+            return;
+        }
+
+        Ship ship = selectBoard.getShips().get(index);
+
+        selectBoard.removeShip(ship);
+        selectPlayer.getShips().remove(ship);
+
+        System.out.println("Ship removed.");
+    }
 }
