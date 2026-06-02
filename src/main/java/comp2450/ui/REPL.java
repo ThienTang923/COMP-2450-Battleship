@@ -116,7 +116,7 @@ public class REPL {
     }
 
     public static void addGame(Scanner scanner) {
-        if (!game.hasGame()) {
+        if (!hasGameRun()) {
             System.out.println(" A game already exists. Use REMOVE GAME first");
             return;
         }
@@ -147,7 +147,7 @@ public class REPL {
 
 
     private static void selectBoard(Scanner scanner) {
-        if (!game.hasGame()) {
+        if (!hasGameRun()) {
             return;
         }
 
@@ -300,7 +300,7 @@ public class REPL {
         }
     }
     private static void showGame() {
-        if(!game.hasGame()) {
+        if(!hasGameRun()) {
             return;
         }
 
@@ -313,6 +313,15 @@ public class REPL {
 
         GamePrinter.printPlayer(game.getPlayer2());
         printBoard(game.getPlayer2().getBoard());
+    }
+
+    private static boolean hasGameRun() {
+        if (!Game.hasGame() || game == null) {
+            System.out.println("No game exist. Use ADD GAME first.");
+            return false;
+        }
+
+        return true;
     }
 
 }
