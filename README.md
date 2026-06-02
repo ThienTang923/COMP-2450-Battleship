@@ -99,7 +99,7 @@ classDiagram
         int ySize
         Cell[][] cells
         List~Ship~ ships
-        List~Effect~ effects
+        List~BoardEffect~ effects
         
         Board(int xSize, int ySize)
         addShip(Ship ship)
@@ -110,6 +110,10 @@ classDiagram
         getEffects() List~Effect~
         getXSize() int
         getYSize() int
+        addEffect(BoardEffect effect)
+        removeEffect(BoardEffect effect)
+        getEffect(int index) BoardEffect
+        getEffects() List~BoardEffect~
     }
 
     note for Board "Invariants:
@@ -122,7 +126,20 @@ classDiagram
         * ships is not null
         * effects is not null
     "
-
+    class BoardEffect {
+        Effect effect
+        Coordinate coordinate
+        
+        BoardEffect(Effect effect, Coordinate coordinate)
+        getEffect() Effect;
+        getCoordinate() Cooridate;
+    }
+    
+    note for BoardEffect "Invariants: 
+        *effect is not null 
+        *coordinate is not null
+        *coordinate represents the location of the effect on board
+    "
     class Ship {
         int size
         List~Coordinate~ coordinates
@@ -227,4 +244,6 @@ classDiagram
     Board o-- Effect
     Game o-- Turn
     Game o-- Status
+    BoardEffect --> Effect
+    BoardEffect --> Coordinate
 ```
