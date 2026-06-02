@@ -246,9 +246,58 @@ public class REPL {
 
         System.out.println("Effect added. ");
     }
+    private static boolean hasEffectAt(Board board, Coordinate coordinate) {
 
-    private static void printBoard() {
+        for (BoardEffect effect : board.getEffects()) {
+            if (effect.getCoordinate().getX() == coordinate.getX() && effect.getCoordinate().getY() == coordinate.getY()) {
+                return true;
+            }
+        }
 
+        return false;
+    }
+
+    private static void printBoard(Board board) {
+        System.out.println("Legend: ");
+        System.out.println(". = empty location");
+        System.out.println("< = ship location");
+        System.out.println("* = effect");
+        System.out.println();
+
+        for (int y = 0; y < board.getYSize(); y++) {
+            for (int x = 0; x < board.getXSize(); x++) {
+                Coordinate coordinate = new Coordinate(x, y);
+                Cell cell = board.getCell(coordinate);
+
+                if (hasEffectAt(board, coordinate)) {
+                    System.out.print("* ");
+                } else if (cell.containShip()) {
+                    System.out.print("< ");
+                } else {
+                    System.out.print(". ");
+                }
+            }
+
+            System.out.println();
+        }
+    }
+
+    private static void printEffects(Board board) {
+        if (board.getEffects().isEmpty()) {
+            System.out.println("No effects.");
+            return;
+        }
+
+        int index = 0;
+
+        for (BoardEffect effect : board.getEffects()) {
+            Coordinate coordinate = effect.getCoordinate();
+
+            System.out.println("[" + index + "]" + effect.getEffect() +
+                    " at " + coordinate.getX() + " " + coordinate.getY());
+
+            index++;
+        }
     }
     private static void showGame() {
         if(!game.hasGame()) {
@@ -259,9 +308,11 @@ public class REPL {
 
         GamePrinter.printPlayer(game.getPlayer1());
         printBoard(game.getPlayer1().getBoard());
+
+        System.out.println();
+
+        GamePrinter.printPlayer(game.getPlayer2());
+        printBoard(game.getPlayer2().getBoard());
     }
-
-
-
 
 }
