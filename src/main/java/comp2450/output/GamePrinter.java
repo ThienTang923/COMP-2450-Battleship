@@ -80,8 +80,12 @@ public class GamePrinter {
 
         int index = 0;
 
-        for (Effect effect: board.getEffects()) {
-            System.out.println("[" + index + "]" + effect);
+        for (BoardEffect boardEffect: board.getEffects()) {
+
+            Coordinate coordinate = boardEffect.getCoordinate();
+
+            System.out.println("[" + index + "]" + boardEffect.getEffect() +
+                    " at " + coordinate.getX() + " " + coordinate.getY());
             index++;
         }
 
@@ -96,7 +100,7 @@ public class GamePrinter {
             for (int x = 0; x < board.getXSize(); x++) {
                 Cell cell = board.getCell(new Coordinate(x,y));
 
-                if (cell.containsShip()) {
+                if (cell.containShip()) {
                     System.out.print("< ");
                 } else {
                     System.out.print(". ");
