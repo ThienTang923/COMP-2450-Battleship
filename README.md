@@ -20,7 +20,9 @@ This model represents the basic version of Battleship first. It can later be exp
 
 ### Building and Running the REPL
 
-The project has been built and tested to be run in IntelliJ. Open the project there, open "comp2450" folder, then the 
+The project has been built and tested to be run in IntelliJ IDEA and Maven.
+
+To run this project in IntelliJ: Open the main entry point file: `src/main/java/comp2450/Main.java`
 
 ## Commands
 
@@ -50,6 +52,10 @@ During implementation, I have made several changes to the original domain model 
 * Changed `Status attackStatus` in `Cell` into `boolean attacked` because cell attack state only needs to represent attacked or not attacked.
 * Added REPL, input, and output classes to separate user interaction from the domain model.
 * Used Guava `Preconditions` to enforce invariants in constructors and methods.
+* Added a unique game design using the `Game` singleton pattern because only one game exists in the system at a time.
+* Added REPL-related classes to handle user input and output separately from the domain model.
+* Update domain model to show concrete Java types and relationships that match the implementation.
+
 ## Domain Model
 
 The classic Battleship game contains two players. Each player has their own board and a collection of ships. A board is made up of cells, and each cell represents one coordinate on the grid. A ship occupies one or more cells on a player’s board. During the game, players make attacks by choosing coordinates on the opponent’s board.
@@ -61,57 +67,83 @@ The initial version of the model is as follows:
 ```mermaid
 classDiagram 
     class Player {
-        Name playerName
-        List~Ship~ ships
-        WholeNumber successfulHits
-        WholeNumber missedAttacks
-        Map map
-
-        moveShip()
-        placeShip()
-        attack(targetCoordinate)
+        -String playerName
+        -List~Ship~ ships
+        -int successfulHits
+        -int missedAttacks
+        -Board board
+        
+        Player(String playerName, Board board)
+        addShip(Ship ship)
+        moveShip(Ship ship, List~Coordinate~ newCoordinate)
+        setSuccessfulHits()
+        missedAttack()
+        getPlayerName() String
+        getShip() List~Ship~
+        getBoard() Board
+        getSuccessfulHits() int
+        getMissedAttack() int
+        placeShip(Ship ship)
     }
 
     note for Player "Invariants:
-        * name is non-empty
-        * ships is non-empty list
-        * successfulHits, missedAttacks are non-negative number
-        * map is non-null
-    "
-    class Map {
+        * playerName is not null
+        * playerName is not blank
+        * board is not null
+        * ships is not null
+        * successfulHits >= 0
+        * missedAttacks >= 0"
+    
+    class Board {
         int xSize
         int ySize
-        Cell cells
+        Cell[][] cells
         List~Ship~ ships
         List~Effect~ effects
+        
+        Board(int xSize, int ySize)
+        addShip(Ship ship)
+        removeShip(Ship ship)
+        getCell(Coordinate coordinate) Cell
+        isInsideBoard(Coordinate coordinate) boolean
+        getShips() List~Ship~
+        getEffects() List~Effect~
+        getXSize() int
+        getYSize() int
     }
 
-    note for Map "Invariants:
-        * xSize, ySize is non-negative number
-        * cell is non-empty
-        * number of cells equals xSize x ySize
-        * Ships do not overlap
-        * All ships are inside map bounds
-        * All cells have valid coordinates
+    note for Board "Invariants:
+        * xSize > 0
+        * ySize > 0
+        * cells is not null
+        * cells is a two-dimensional Cell array
+        * every Cell in cells is not null
+        * each Cell has a valid Coordinate inside the board
+        * ships is not null
+        * effects is not null
     "
 
     class Ship {
-        PositiveNumber size
+        int size
         List~Coordinate~ coordinates
-        PositiveNumber health
-        WholeNumber currentHealth
+        int health
+        int currentHealth
 
-        move()
+        Ship(int size, List~Coordinate~ coordinates)
+        move(List~Coordinate~ newCoordinates)
         takeDamage()
-        isSunk()
+        isSunk() boolean
+        getSize() int
+        getCurrentHealth() int
+        getCoordinates() List~Coordinate~
     }
 
     note for Ship "Invariants:
-        * size, health are non negative number
-        * coordinate is non-empty 
-        * number of coordinates equals size
-        * all coordinate are unique
-        * currentHealth is between 0 and health
+        * size > 0
+        * coordinates is not null
+        * coordinates.size() == size
+        * currentHealth >= 0
+        * currentHealth <= size
     "
     
     class Coordinate {
@@ -126,18 +158,24 @@ classDiagram
     class Cell {
         Coordinate coordinate
         Ship ship
-        Status attackedStatus
-        
-        placeShip()
+        boolean attacked;
+
+        Cell(Coordinate coordinate)
+        placeShip(Ship ship)
+        containShip() boolean
         removeShip()
         markAttacked()
-        containsShip()
+        isAttacked() boolean
+        getShip() Ship
+        getCoordinate() Coordinate
     }
     
     note for Cell "Invariants: 
-        * coordinate is valid
-        * cell contains at most one ship
-        * attackedStatus is valid
+        * coordinate is not null
+        * ship can be null if the cell is empty
+        * ship must not be overwritten if the cell already has a ship
+        * attacked is false when the cell is created
+        * attacked becomes true after markAttacked()
     "
     
     class Effect {
@@ -182,11 +220,11 @@ classDiagram
     "
     Game *-- Player
     Player *-- Ship
-    Player *-- Map
-    Map *-- Cell
+    Player *-- Board
+    Board *-- Cell
     Ship --> Coordinate
     Cell --> Coordinate
-    Map o-- Effect
+    Board o-- Effect
     Game o-- Turn
     Game o-- Status
 ```
