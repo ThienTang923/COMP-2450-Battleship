@@ -24,7 +24,7 @@ public class Cell {
         this.ship = ship;
     }
     
-    public boolean containShip() {
+    public boolean containsShip() {
         return this.ship != null;
     }
 

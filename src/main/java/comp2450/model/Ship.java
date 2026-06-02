@@ -14,10 +14,10 @@ public class Ship {
 
         Preconditions.checkArgument(size >0, "size must be positive");
         Preconditions.checkNotNull(coordinates, "coordinates cannot be null");
-        Preconditions.checkArgument(coordinates.size() == size, "cooridnate must match ship size");
+        Preconditions.checkArgument(coordinates.size() == size, "coordinates must match ship size");
 
         this.size = size;
-        this.health = health;
+        this.health = size;
         this.currentHealth = size;
         this.coordinates = coordinates;
     }
@@ -25,7 +25,7 @@ public class Ship {
     public void move(List<Coordinate> newCoordinates) {
 
         Preconditions.checkNotNull(newCoordinates);
-        Preconditions.checkArgument(newCoordinates.size() == size, "new cooridnates must match ship size");
+        Preconditions.checkArgument(newCoordinates.size() == size, "new coordinates must match ship size");
 
         this.coordinates = newCoordinates;
     }

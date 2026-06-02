@@ -15,7 +15,7 @@ public class Player {
 
         Preconditions.checkNotNull(playerName,"player name cannot be null");
         Preconditions.checkArgument(!playerName.isBlank(),"player name cannot be empty");
-        Preconditions.checkNotNull(board,"map can not be null");
+        Preconditions.checkNotNull(board,"board can not be null");
 
         this.playerName = playerName;
         this.board = board;
@@ -54,7 +54,7 @@ public class Player {
         return ships;
     }
 
-    public Board getMap() {
+    public Board getBoard() {
         return board;
     }
 
@@ -69,6 +69,6 @@ public class Player {
     public void placeShip(Ship ship) {
 
         Preconditions.checkNotNull(ship);
-        ships.add(ship);
+        addShip(ship);
     }
 }
