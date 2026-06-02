@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 
+import static comp2450.logic.Game.hasGame;
+
 public class REPL {
 
     private static final int DEFAULT_BOARD_SIZE = 10;
@@ -117,7 +119,7 @@ public class REPL {
     }
 
     public static void addGame(Scanner scanner) {
-        if (Game.hasGame()) {
+        if (hasGame()) {
             System.out.println(" A game already exists. Use REMOVE GAME first");
             return;
         }
@@ -143,6 +145,29 @@ public class REPL {
 
         game = Game.getInstance(player1, player2);
 
-        System.out.println("Game created with " + player1Name + " and " + player2Name + ".");
+        System.out.println("Game created with " + playerName1 + " and " + playerName2 + ".");
     }
+
+    private static void selectBoard(Scanner scanner) {
+        if (!game.hasGame()) {
+            return;
+        }
+
+        System.out.println("Enter player name");
+        String name = scanner.nextLine().trim();
+
+        Player player = players.get(name);
+
+        if(player == null) {
+            System.out.println("Player does not exist");
+            return;
+        }
+
+        selectPlayer = player;
+        selectBoard = player.getBoard();
+
+        System.out.println("Select board for player: " + name);
+    }
+
+
 }
