@@ -39,50 +39,51 @@ public class REPL {
                     break;
 
                 case "ADD PLAYER":
+                    addPlayer(scanner);
                     break;
 
                 case "ADD GAME":
-
+                    addGame(scanner);
                     break;
 
                 case "SELECT BOARD":
-
+                    selectBoard(scanner);
                     break;
 
                 case "ADD SHIP":
-
+                    addShip(scanner);
                     break;
 
                 case "ADD EFFECT":
-
+                    addEffect(scanner);
                     break;
 
                 case "SHOW GAME":
-
+                    showGame();
                     break;
 
                 case "SHOW SHIPS":
-
+                    showShips();
                     break;
 
                 case "SHOW EFFECTS":
-
+                    showEffects();
                     break;
 
                 case "MOVE SHIP":
-
+                    moveShip(scanner);
                     break;
 
                 case "REMOVE SHIP":
-
+                    removeShip(scanner);
                     break;
 
                 case "REMOVE EFFECT":
-
+                    removeEffect(scanner);
                     break;
 
                 case "REMOVE GAME":
-
+                    removeGame();
                     break;
 
                 case "EXIT":
@@ -322,6 +323,67 @@ public class REPL {
         }
 
         return true;
+    }
+
+    private static void showShips() {
+        if (!hasGameRun()) {
+            return;
+        }
+
+        System.out.println("=+=+= Ship for Player 1=+=+=");
+        GamePrinter.printShips(game.getPlayer1().getBoard());
+
+        System.out.println("=+=+= Ship for Player 2=+=+=");
+        GamePrinter.printShips(game.getPlayer2().getBoard());
+    }
+
+    private static void showEffects() {
+        if(!hasGameRun()) {
+            return;
+        }
+
+        System.out.println("=+=+= Effects for Player 1 =+=+=");
+        printEffects(game.getPlayer1().getBoard());
+
+        System.out.println("=+=+= Effects for Player 2 =+=+=");
+        printEffects(game.getPlayer2().getBoard());
+    }
+
+    private static void moveShip(Scanner scanner) {
+        if (!hasSelectBoard()) {
+            return;
+        }
+
+        if (selectBoard.getShips().isEmpty()) {
+            System.out.println("No ships on selected board.");
+            return;
+        }
+
+        GamePrinter.printShips(selectBoard);
+
+        System.out.println("Enter ship id: ");
+        int index = readInt(scanner);
+
+        if (index < 0 || index >= selectBoard.getShips().size()) {
+            System.out.println("Invalid ship id.");
+            return;
+        }
+
+        Ship ship = selectBoard.getShips().get(index);
+
+        List<Coordinate> newCoordinates = new ArrayList<>();
+
+        for (int i = 0; i < ship.getSize(); i++) {
+            System.out.print("Enter new coordinate: " + (i+1) + " as x y: ");
+            Coordinate coordinate = readCoordinate(scanner);
+            newCoordinates.add(coordinate);
+        }
+
+        selectBoard.removeShip(ship);
+        ship.move(newCoordinates);
+        selectBoard.addShip(ship);
+
+        System.out.println("Ship moved.");
     }
 
 }
