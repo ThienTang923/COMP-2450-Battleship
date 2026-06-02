@@ -413,4 +413,46 @@ public class REPL {
 
         System.out.println("Ship removed.");
     }
+
+    private static void removeEffect(Scanner scanner) {
+        if (!hasSelectBoard()) {
+            return;
+        }
+
+        if (selectBoard.getEffects().isEmpty()) {
+            System.out.println("No effects on selected board.");
+            return;
+        }
+
+        printEffects(selectBoard);
+
+        System.out.print("Enter effect id: ");
+        int index = readInt(scanner);
+
+        if (index < 0 || index >= selectBoard.getEffects().size()) {
+            System.out.println("Invalid effect id.");
+            return;
+        }
+
+        BoardEffect effect = selectBoard.getEffect(index);
+        selectBoard.removeEffect(effect);
+
+        System.out.println("Effect removed.");
+    }
+
+    private static void removeGame() {
+        if (!Game.hasGame()) {
+            System.out.println("No game exists.");
+            return;
+        }
+
+        Game.removeGame();
+
+        game = null;
+        selectPlayer = null;
+        selectBoard = null;
+
+        System.out.println("Game removed.");
+    }
+
 }
