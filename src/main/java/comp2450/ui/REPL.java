@@ -2,7 +2,9 @@ package comp2450.ui;
 
 import comp2450.logic.Game;
 import comp2450.model.Board;
+import comp2450.model.Coordinate;
 import comp2450.model.Player;
+import comp2450.model.Ship;
 import comp2450.output.GamePrinter;
 
 import java.util.Scanner;
@@ -10,8 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-
-import static comp2450.logic.Game.hasGame;
 
 public class REPL {
 
@@ -119,7 +119,7 @@ public class REPL {
     }
 
     public static void addGame(Scanner scanner) {
-        if (hasGame()) {
+        if (!game.hasGame()) {
             System.out.println(" A game already exists. Use REMOVE GAME first");
             return;
         }
@@ -148,6 +148,7 @@ public class REPL {
         System.out.println("Game created with " + playerName1 + " and " + playerName2 + ".");
     }
 
+
     private static void selectBoard(Scanner scanner) {
         if (!game.hasGame()) {
             return;
@@ -169,5 +170,53 @@ public class REPL {
         System.out.println("Select board for player: " + name);
     }
 
+    private static boolean hasSelectBoard() {
 
+        if(selectBoard == null || selectPlayer == null) {
+            System.out.println("No board selected. Use SELECT BOARD first.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static int readInt(Scanner scanner) {
+        String line = scanner.nextLine().trim();
+        return Integer.parseInt(line);
+    }
+
+    private static Coordinate readCoordinate(Scanner scanner) {
+        String line = scanner.nextLine().trim();
+        String[] parts = line.split(" ");
+
+        int x = Integer.parseInt(parts[0]);
+        int y = Integer.parseInt(parts[1]);
+
+        return new Coordinate(x,y);
+    }
+
+    private static void addShip(Scanner scanner) {
+        if(!hasSelectBoard()) {
+            return;
+        }
+
+        System.out.println("Enter ship size: ");
+        int size = readInt(scanner);
+
+        List<Coordinate> coordinates = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
+            System.out.println("Enter coordinate " + (i+1) + " as x y: ");
+            Coordinate coordinate = readCoordinate(scanner);
+            coordinates.add(coordinate);
+        }
+
+        Ship ship = new Ship(size, coordinates);
+
+        selectBoard.addShip(ship);
+        selectPlayer.addShip(ship);
+
+        System.out.println("Ship added. ");
+
+    }
 }
