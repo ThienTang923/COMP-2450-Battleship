@@ -1,8 +1,6 @@
 package comp2450.output;
 
-import comp2450.model.Board;
-import comp2450.model.Player;
-import comp2450.model.Ship;
+import comp2450.model.*;
 
 public class GamePrinter {
     public static void printHelp() {
@@ -60,7 +58,7 @@ public class GamePrinter {
 
     }
 
-    public static void printShip(Board board) {
+    public static void printShips(Board board) {
         System.out.println("Ships on board: ");
 
         int index = 0;
@@ -71,9 +69,42 @@ public class GamePrinter {
                     ", health: " + ship.getCurrentHealth());
             index++;
         }
+
+        if (index ==0) {
+            System.out.println("No ships on this board.");
+        }
     }
 
-    public static void print() {
-        
+    public static void printEffect(Board board) {
+        System.out.println("Effect on board:");
+
+        int index = 0;
+
+        for (Effect effect: board.getEffects()) {
+            System.out.println("[" + index + "]" + effect);
+            index++;
+        }
+
+        if (index ==0) {
+            System.out.println("No effects on this board");
+        }
+    }
+
+    public static void printBoard(Board board) {
+
+        for (int y = 0; y < board.getYSize(); y++) {
+            for (int x = 0; x < board.getXSize(); x++) {
+                Cell cell = board.getCell(new Coordinate(x,y));
+
+                if (cell.containsShip()) {
+                    System.out.print("< ");
+                } else {
+                    System.out.print(". ");
+                }
+            }
+
+            System.out.println();
+        }
+
     }
 }
