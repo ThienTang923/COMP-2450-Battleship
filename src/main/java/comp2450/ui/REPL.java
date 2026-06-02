@@ -1,10 +1,7 @@
 package comp2450.ui;
 
 import comp2450.logic.Game;
-import comp2450.model.Board;
-import comp2450.model.Coordinate;
-import comp2450.model.Player;
-import comp2450.model.Ship;
+import comp2450.model.*;
 import comp2450.output.GamePrinter;
 
 import java.util.Scanner;
@@ -219,4 +216,52 @@ public class REPL {
         System.out.println("Ship added. ");
 
     }
+
+    private static void addEffect(Scanner scanner) {
+
+        if (!hasSelectBoard()) {
+            return;
+        }
+
+        System.out.println("Enter effect type: ");
+
+        System.out.println("(DOUBLE_DAMAGE, SHIELD, HEAL, RADAR)");
+
+        String effectText = scanner.nextLine().trim().toUpperCase();
+
+        Effect effect;
+
+        try {
+            effect = Effect.valueOf(effectText);
+        } catch (IllegalArgumentException iae) {
+            System.out.println("Invalid effect type. ");
+            return;
+        }
+
+        System.out.println("Enter coordinate as x y: ");
+        Coordinate coordinate = readCoordinate(scanner);
+
+        BoardEffect boardEffect = new BoardEffect(effect, coordinate);
+        selectBoard.addEffect(boardEffect);
+
+        System.out.println("Effect added. ");
+    }
+
+    private static void printBoard() {
+
+    }
+    private static void showGame() {
+        if(!game.hasGame()) {
+            return;
+        }
+
+        System.out.println("=*=*= Game Information =*=*=");
+
+        GamePrinter.printPlayer(game.getPlayer1());
+        printBoard(game.getPlayer1().getBoard());
+    }
+
+
+
+
 }
