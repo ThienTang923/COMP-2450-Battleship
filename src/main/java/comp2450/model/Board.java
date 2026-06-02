@@ -11,7 +11,7 @@ public class Board {
     private int ySize;
     private Cell[][] cells;
     private List<Ship> ships;
-    private List<Effect> effects;
+    private List<BoardEffect> effects;
 
     public Board(int xSize, int ySize) {
 
@@ -59,6 +59,8 @@ public class Board {
     }
 
     public boolean isInsideBoard(Coordinate coordinate) {
+        Preconditions.checkNotNull(coordinate, "coordinate cannot be null");
+
         return coordinate.getX() >= 0
                 && coordinate.getX() < xSize
                 && coordinate.getY() >= 0
@@ -69,7 +71,7 @@ public class Board {
         return ships;
     }
 
-    public List<Effect> getEffects() {
+    public List<BoardEffect> getEffects() {
         return effects;
     }
 
@@ -79,5 +81,26 @@ public class Board {
 
     public int getYSize() {
         return ySize;
+    }
+
+    public void addEffect(BoardEffect effect) {
+        Preconditions.checkNotNull(effect, "effect cannot be null");
+        Preconditions.checkArgument(isInsideBoard(effect.getCoordinate()),
+                "effect coordinate is outside board");
+
+        effects.add(effect);
+    }
+
+    public void removeEffect(BoardEffect effect) {
+        Preconditions.checkNotNull(effect, "effect cannot be null");
+
+        effects.remove(effect);
+    }
+
+    public BoardEffect getEffect(int index) {
+        Preconditions.checkArgument(index >= 0 && index < effects.size(),
+                "effect index is invalid");
+
+        return effects.get(index);
     }
 }
