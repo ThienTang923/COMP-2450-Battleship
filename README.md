@@ -215,9 +215,10 @@ During implementation, I have made several changes to the original domain model 
 * Added a unique game design using the `Game` singleton pattern because only one game exists in the system at a time.
 * Added REPL-related classes to handle user input and output separately from the domain model.
 * Update domain model to show concrete Java types and relationships that match the implementation.
-* Create `hasFirePath(Coordinate start, Coordinate target) boolean` method to check for the submarine ship
-* Create `Node`, `PathStack`, `LinkedPathStack` to use my own linked list data structure
-
+* Create `hasFirePath(Coordinate start, Coordinate target) boolean` to `Board` because submarine movement depends on checking whether a valid path exists through cells that have already been fired upon.
+* Updated the board-effect relationship so `Board` stores `BoardEffect` objects, because each board effect has both an effect type and a coordinate.
+* Create `Node`, `PathStack`, `LinkedPathStack` to support the future stack-based path-finding algorithm for submarine movement.
+* Add `ShipType` to distinguish normal ships from submarines because Phase 3 gives submarines special movement rules.
 ## Domain Model
 
 The classic Battleship game contains two players. Each player has their own board and a collection of ships. A board is made up of cells, and each cell represents one coordinate on the grid. A ship occupies one or more cells on a player’s board. During the game, players make attacks by choosing coordinates on the opponent’s board.
