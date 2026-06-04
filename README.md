@@ -14,19 +14,179 @@ The purpose of this phase is to create an abstract design of the game before imp
 
 This model represents the basic version of Battleship first. It can later be expanded to include new Battleship++ features such as variable board sizes, movable ships, and special effects.
 
+The purpose of Phase 2 is to implement the domain model from Phase 1 and update the model so that it accurately reflects the Java implementation. The project also includes a command-line REPL so that the model can be tested by creating, reading , updating, and deleting objects during runtime.
+
 [Battleship]: https://en.wikipedia.org/wiki/Battleship_(game)
 
+## Flows of Interaction
+
+### Diagrams
+
+#### Overall Flow
+
+This diagram is showing general of how the game is played, each sub-task here will show the specific of work.
+
+```mermaid
+flowchart
+subgraph Game Flow
+    direction TB
+    setupGame[[Setup Game]]
+    
+    placeShips[Place Ships]
+    
+    placeEffects[Place Effects]
+    
+    combat[Combat]
+    
+    gameOver[[Game Ended]]
+    
+    setupGame -- Game created --> placeShips
+    placeShips -- Ships placed --> placeEffects
+    placeEffects -- Effects hidden on board --> combat
+    combat -- Combat ended,
+        switch player --> combat
+    combat -- Game ended --> gameOver
+end
+```
+
+#### Setup Game
+
+```mermaid
+flowchart
+subgraph setup Game
+    direction TB
+    getPlayers[[Enter player names]]
+    
+    createGame{Create Game}
+    
+    nextTask[[Move to ship placement]]
+
+    getPlayers -- Player names player one, player two --> createGame
+    createGame -. Game created, show player info .-> nextTask
+    createGame -. Invalid players or same player .-> getPlayers
+end
+```
+#### Place ships
+
+```mermaid
+flowchart
+subgraph Place ships
+    direction TB
+    getShipInfo[[Enter ship placement info]]
+    
+    placeShip{Place ship}
+    
+    nextTask[[Move to effect placement]]
+    
+    getShipInfo -- Ship info player name, ship id, x y cooridnate --> placeShip
+    placeShip -. Ship placed, show update board .-> nextTask
+    placeShip -.  Invalid location, outside board, or overlap .-> getShipInfo    
+end
+```
+
+#### Place Effect
+
+```mermaid
+flowchart
+subgraph Place Effects
+    direction TB
+    shipsPlaced[[Ships placed]]
+
+    placeEffect{Place random effects}
+
+    effectsReady[[Effects hidden on board]]
+
+    shipsPlaced -- Empty cell locations and number of effects --> placeEffect
+    placeEffect -. Effects placed on cells without ships .-> effectsReady
+    placeEffect -. No empty cells or placement failed .-> shipsPlaced
+end
+```
+#### Combat
+
+```mermaid
+flowchart
+subgraph Combat
+direction TB
+
+    getAction[[Get action]]
+
+    moveShip{Move ship}
+    selectShip[Select ship]
+    normalMove{Do normal move}
+    submarineMove{Do submarine move}
+    applyEffect{Apply effect}
+    fireAttack{Fire attack}
+    checkWinner{Check winner}
+    endGame[[**__Game__** ended]]
+    endCombat[[Combat ended]]
+
+    getAction -- Move ship + confirmation --> moveShip
+    moveShip -. Show movable ships .-> selectShip
+    moveShip -. Skip movement .-> fireAttack
+
+    selectShip -- Selects normal ship --> normalMove
+    normalMove -. Invalid move .-> getAction
+    normalMove -. Ship moved .-> applyEffect
+
+    selectShip -- Selects submarine --> submarineMove
+    submarineMove -. Invalid target or no valid path .-> getAction
+    submarineMove -. Submarine moved .-> applyEffect
+
+    applyEffect -. No effect found .-> fireAttack
+    applyEffect -. Effect applie and ship survives .-> fireAttack
+    applyEffect -. Effect applied and ship destroyed .-> checkWinner
+
+    fireAttack -- Select attacking ship and target x y --> checkWinner
+    fireAttack -. Invalid target or already fired .-> getAction
+    fireAttack -. Hit or miss recorded .-> checkWinner
+
+    checkWinner -. Player has no ships left .-> endGame
+    checkWinner -. Both players still have ships .-> endCombat
+
+    getAction -. Invalid or cancelled .-> getAction
+    selectShip -. Invalid selection .-> selectShip
+end
+```
+
+#### Submarine Movement 
+
+```mermaid
+flowchart
+subgraph Submarine Movement
+    direction TB
+    getTarget[[Enter submarine movement]]
+    
+    checkDestination{Check destination}
+    checkPath{Check fired path}
+    moveSubmarine[Move submarine]
+    
+    endMove[[Submarine movement ended]]
+    
+    getTarget -- Submarine id
+        and target x y --> checkDestination
+    
+    checkDestination -. Destination was already fired on .-> endMove
+    checkDestination -. Destination is safe .-> checkPath
+    
+    checkPath -. No valid fired path .-> endMove
+    checkPath -. Valid fired path found .-> moveSubmarine
+    
+    moveSubmarine -. Show new submarine location .-> endMove
+end
+```
 ## REPL
 
 ### Building and Running the REPL
 
 The project has been built and tested to be run in IntelliJ IDEA and Maven.
 
-To run this project in IntelliJ: Open the main entry point file: `src/main/java/comp2450/Main.java`
+To run this project in IntelliJ: Open the main entry point file: `src/main/java/comp2450/REPL`
+
+and then run the main method in `REPL`.
 
 ## Commands
 
-The REPL supports the following commands:
+### The REPL supports the following commands:
 * `HELP` — Shows all available commands and input formats.
 * `ADD PLAYER` — Adds a new player by name.
 * `ADD GAME` — Creates a new game using two existing players.
