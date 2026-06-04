@@ -216,7 +216,7 @@ During implementation, I have made several changes to the original domain model 
 * Added REPL-related classes to handle user input and output separately from the domain model.
 * Update domain model to show concrete Java types and relationships that match the implementation.
 * Create `hasFirePath(Coordinate start, Coordinate target) boolean` method to check for the submarine ship
-* Create `Node`, `PathStack`, `LinkedListPath` to use my own linked list data structure
+* Create `Node`, `PathStack`, `LinkedPathStack` to use my own linked list data structure
 
 ## Domain Model
 
@@ -413,7 +413,7 @@ classDiagram
         isEmpty() boolean
     }
     
-    class LinkedListPath {
+    class LinkedPathStack {
         PathStack top
         int size
         
@@ -428,20 +428,23 @@ classDiagram
         T data 
         PathStack next
     }
-    PathStack <|.. LinkedListPath
-    LinkedListPath --> Node
+    PathStack <|.. LinkedPathStack
+    LinkedPathStack --> Node
     Node-->Node
     
     Game *-- Player
     Player *-- Ship
     Player *-- Board
     Board *-- Cell
+    
     Ship --> Coordinate
-    Ship o-- ShipType
+    Ship --> ShipType
     Cell --> Coordinate
+    
     Board o-- BoardEffect
     Game o-- Turn
     Game o-- Status
+    
     BoardEffect --> Effect
     BoardEffect --> Coordinate
 ```
