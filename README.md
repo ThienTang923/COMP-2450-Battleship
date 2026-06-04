@@ -24,7 +24,7 @@ The purpose of Phase 2 is to implement the domain model from Phase 1 and update 
 
 #### Overall Flow
 
-This diagram is showing general of how the game is played, each sub-task here will show the specific of work.
+This diagram shows a general view of how the game is played. Each sub-task shown here is presented in more detail below.
 
 ```mermaid
 flowchart
@@ -215,6 +215,8 @@ During implementation, I have made several changes to the original domain model 
 * Added a unique game design using the `Game` singleton pattern because only one game exists in the system at a time.
 * Added REPL-related classes to handle user input and output separately from the domain model.
 * Update domain model to show concrete Java types and relationships that match the implementation.
+* Create `hasFirePath(Coordinate start, Coordinate target) boolean` method to check for the submarine ship
+* Create `Node`, `PathStack`, `LinkedListPath` to use my own linked list data structure
 
 ## Domain Model
 
@@ -274,6 +276,7 @@ classDiagram
         removeEffect(BoardEffect effect)
         getEffect(int index) BoardEffect
         getEffects() List~BoardEffect~
+        hasFiredPath(Coordinate start, Coordinate target) boolean
     }
 
     note for Board "Invariants:
@@ -300,8 +303,14 @@ classDiagram
         *coordinate is not null
         *coordinate represents the location of the effect on board
     "
+    class ShipType {
+        <<enumeration>>
+        NORMAL
+        SUBMARINE
+    }
     class Ship {
         int size
+        ShipType shipType
         List~Coordinate~ coordinates
         int health
         int currentHealth
@@ -395,13 +404,42 @@ classDiagram
         * Players are different
         * CurrentTurn is valid
     "
+    class PathStack {
+        <<interface>>
+        push(T data)
+        pop() T
+        peek() T
+        size() int
+        isEmpty() boolean
+    }
+    
+    class LinkedListPath {
+        PathStack top
+        int size
+        
+        push(T data)
+        pop() T
+        peek() T
+        size() int
+        isEmpty() boolean
+    }
+    
+    class Node {
+        T data 
+        PathStack next
+    }
+    PathStack <|.. LinkedListPath
+    LinkedListPath --> Node
+    Node-->Node
+    
     Game *-- Player
     Player *-- Ship
     Player *-- Board
     Board *-- Cell
     Ship --> Coordinate
+    Ship o-- ShipType
     Cell --> Coordinate
-    Board o-- Effect
+    Board o-- BoardEffect
     Game o-- Turn
     Game o-- Status
     BoardEffect --> Effect
