@@ -117,7 +117,7 @@ public class REPL {
     }
 
     public static void addGame(Scanner scanner) {
-        if (!hasGameRun()) {
+        if (!game.hasGame() || game == null) {
             System.out.println(" A game already exists. Use REMOVE GAME first");
             return;
         }
@@ -142,6 +142,7 @@ public class REPL {
         }
 
         game = Game.getInstance(player1, player2);
+        game.startGame();
 
         System.out.println("Game created with " + playerName1 + " and " + playerName2 + ".");
     }
