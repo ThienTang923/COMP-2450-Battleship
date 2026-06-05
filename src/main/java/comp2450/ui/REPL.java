@@ -5,7 +5,6 @@ import comp2450.model.*;
 import comp2450.output.GamePrinter;
 import comp2450.exceptions.InvalidInputException;
 import comp2450.input.InputReader;
-import java.util.Scanner;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,87 +22,86 @@ public class REPL {
 
     public static void main(String[] args) {
 
-
-        Scanner scanner = new Scanner(System.in);
-        inputReader = new InputReader(scanner);
+        inputReader = new InputReader();
         boolean running = true;
 
         System.out.println("Welcome to Battleship++");
         System.out.println("Type HELP to see available commands.");
-
+       
         while (running) {
+            try {
+                System.out.print("> ");
+                String command = inputReader.readCommand("> ");
 
-            System.out.print("> ");
-            String command = scanner.nextLine().trim().toUpperCase();
+                switch (command) {
 
-            switch (command) {
+                    case "HELP":
+                        GamePrinter.printHelp();
+                        break;
 
-                case "HELP":
-                    GamePrinter.printHelp();
-                    break;
+                    case "ADD PLAYER":
+                        addPlayer();
+                        break;
 
-                case "ADD PLAYER":
-                    addPlayer(scanner);
-                    break;
+                    case "ADD GAME":
+                        addGame();
+                        break;
 
-                case "ADD GAME":
-                    addGame(scanner);
-                    break;
+                    case "SELECT BOARD":
+                        selectBoard();
+                        break;
 
-                case "SELECT BOARD":
-                    selectBoard(scanner);
-                    break;
+                    case "ADD SHIP":
+                        addShip();
+                        break;
 
-                case "ADD SHIP":
-                    addShip(scanner);
-                    break;
+                    case "ADD EFFECT":
+                        addEffect();
+                        break;
 
-                case "ADD EFFECT":
-                    addEffect(scanner);
-                    break;
+                    case "SHOW GAME":
+                        showGame();
+                        break;
 
-                case "SHOW GAME":
-                    showGame();
-                    break;
+                    case "SHOW SHIPS":
+                        showShips();
+                        break;
 
-                case "SHOW SHIPS":
-                    showShips();
-                    break;
+                    case "SHOW EFFECTS":
+                        showEffects();
+                        break;
 
-                case "SHOW EFFECTS":
-                    showEffects();
-                    break;
+                    case "MOVE SHIP":
+                        moveShip();
+                        break;
 
-                case "MOVE SHIP":
-                    moveShip(scanner);
-                    break;
+                    case "REMOVE SHIP":
+                        removeShip();
+                        break;
 
-                case "REMOVE SHIP":
-                    removeShip(scanner);
-                    break;
+                    case "REMOVE EFFECT":
+                        removeEffect();
+                        break;
 
-                case "REMOVE EFFECT":
-                    removeEffect(scanner);
-                    break;
+                    case "REMOVE GAME":
+                        removeGame();
+                        break;
 
-                case "REMOVE GAME":
-                    removeGame();
-                    break;
+                    case "EXIT":
+                        running = false;
+                        System.out.println("Goodbye.");
+                        break;
 
-                case "EXIT":
-                    running = false;
-                    System.out.println("Goodbye.");
-                    break;
-
-                default:
-                    System.out.println("Unknown command.");
+                    default:
+                        System.out.println("Unknown command.");
+                }
+            } catch (InvalidInputException iie) {
+                System.out.println("Invalid input: " + iie.getMessage());
             }
         }
-
-        scanner.close();
     }
 
-    private static void addPlayer(Scanner scanner) {
+    private static void addPlayer() {
 
         try {
             String name = inputReader.readString("Enter player game: ").trim();
@@ -124,7 +122,7 @@ public class REPL {
         }
     }
 
-    public static void addGame(Scanner scanner) {
+    public static void addGame() {
 
         if (game != null) {
             System.out.println(" A game already exists. Use REMOVE GAME first");
@@ -158,7 +156,7 @@ public class REPL {
     }
 
 
-    private static void selectBoard(Scanner scanner) {
+    private static void selectBoard() {
         if (!hasGameRun()) {
             return;
         }
@@ -169,8 +167,7 @@ public class REPL {
             Player player = players.get(name);
 
             if (player == null) {
-                System.out.println("Player does not exist");
-                return;
+                throw new InvalidInputException("Player does not exist");
             }
 
             selectPlayer = player;
@@ -203,49 +200,73 @@ public class REPL {
         return false;
     }
 
-    private static void addShip(Scanner scanner) {
-        if(!hasSelectBoard()) {
+    private static void addShip() {
+        if (!hasSelectBoard()) {
             return;
         }
-        try {
-            int size = inputReader.readPositiveInt("Enter ship size: ");
 
-            int typeChoice = inputReader.readInt("Enter ship type: 1 for NORMAL, 2 for SUBMARINE");
+        boolean valid = false;
 
-            ShipType shipType;
+        while (!valid) {
+            try {
+                int size = inputReader.readPositiveInt("Enter ship size: ");
 
-            if (typeChoice == 2) {
-                if (alreadyHasSubmarine(selectPlayer)) {
-                    System.out.println("This player already has one submarine");
+                int typeChoice = inputReader.readInt("Enter ship type: 1 for NORMAL, 2 for SUBMARINE");
+
+                ShipType shipType;
+                boolean shipChosen = true;
+
+                if (typeChoice == 2) {
+                    if (alreadyHasSubmarine(selectPlayer)) {
+                        shipChosen = false;
+                        throw new InvalidInputException("This player already has one submarine. \n" +
+                                "Please choose NORMAL ship instead." );
+                    } else {
+                        shipType = ShipType.SUBMARINE;
+                    }
+                } else if (typeChoice == 1) {
+                    shipType = ShipType.NORMAL;
+                } else {
+                    shipChosen = false;
+                    throw new InvalidInputException("Invalid ship type. Please enter 1 for NORMAL or 2 for SUBMARINE.");
                 }
-                shipType = ShipType.SUBMARINE;
-            } else if (typeChoice == 1){
-                shipType = ShipType.NORMAL;
-            } else {
-                System.out.println("Invalid ship type. Please enter 1 for NORMAL or 2 for SUBMARINE.");
-                return;
+
+                if (shipChosen) {
+                    List<Coordinate> coordinates = new ArrayList<>();
+
+                    for (int i = 0; i < size; i++) {
+
+                        Coordinate coordinate = readCoordinateInsideBoard("Enter coordinate " + (i + 1) + " as x y: ");
+                        coordinates.add(coordinate);
+                    }
+
+                    Ship ship = new Ship(size, coordinates, shipType);
+
+                    selectBoard.addShip(ship);
+                    selectPlayer.addShip(ship);
+
+                    System.out.println("Ship added. ");
+                    valid = true;
+                }
+            } catch (InvalidInputException iie) {
+                System.out.println("Input error: " + iie.getMessage());
+                System.out.println("Please try to add ship again.");
             }
-
-            List<Coordinate> coordinates = new ArrayList<>();
-
-            for (int i = 0; i < size; i++) {
-
-                Coordinate coordinate = inputReader.readCoordinate("Enter coordinate " + (i + 1) + " as x y: ");
-                coordinates.add(coordinate);
-            }
-
-            Ship ship = new Ship(size, coordinates, shipType);
-
-            selectBoard.addShip(ship);
-            selectPlayer.addShip(ship);
-
-            System.out.println("Ship added. ");
-        } catch (InvalidInputException iie) {
-            System.out.println("Input error: " + iie.getMessage());
         }
     }
 
-    private static void addEffect(Scanner scanner) {
+    private static Coordinate readCoordinateInsideBoard(String prompt) throws InvalidInputException {
+        Coordinate coordinate = inputReader.readCoordinate(prompt);
+
+        if (!selectBoard.isInsideBoard(coordinate)) {
+            throw new InvalidInputException("Invalid coordinate. x and y must be inside the board.\n" +
+                    "For 10x10 board, use values from 0 to 9");
+        }
+
+        return coordinate;
+    }
+
+    private static void addEffect() {
 
         if (!hasSelectBoard()) {
             return;
@@ -259,8 +280,7 @@ public class REPL {
             try {
                 effect = Effect.valueOf(effectText);
             } catch (IllegalArgumentException iae) {
-                System.out.println("Invalid effect type. ");
-                return;
+                throw new InvalidInputException("Invalid effect type. ");
             }
 
             Coordinate coordinate = inputReader.readCoordinate("Enter coordinate as x y: ");
@@ -376,7 +396,7 @@ public class REPL {
         printEffects(game.getPlayer2().getBoard());
     }
 
-    private static void moveShip(Scanner scanner) {
+    private static void moveShip() {
         if (!hasSelectBoard()) {
             return;
         }
@@ -393,8 +413,7 @@ public class REPL {
             int index = inputReader.readInt("Enter ship id: ");
 
             if (index < 0 || index >= selectBoard.getShips().size()) {
-                System.out.println("Invalid ship id.");
-                return;
+                throw new InvalidInputException("Invalid ship id.");
             }
 
             Ship ship = selectBoard.getShips().get(index);
@@ -418,7 +437,7 @@ public class REPL {
         }
     }
 
-    private static void removeShip(Scanner scanner) {
+    private static void removeShip() {
         if (!hasSelectBoard()) {
             return;
         }
@@ -435,8 +454,7 @@ public class REPL {
             int index = inputReader.readInt("Enter ship id: ");
 
             if (index < 0 || index >= selectBoard.getShips().size()) {
-                System.out.println("Invalid ship id.");
-                return;
+                throw new InvalidInputException("Invalid ship id.");
             }
 
             Ship ship = selectBoard.getShips().get(index);
@@ -451,7 +469,7 @@ public class REPL {
         }
     }
 
-    private static void removeEffect(Scanner scanner) {
+    private static void removeEffect() {
         if (!hasSelectBoard()) {
             return;
         }
@@ -467,8 +485,7 @@ public class REPL {
             int index = inputReader.readInt("Enter effect id: ");
 
             if (index < 0 || index >= selectBoard.getEffects().size()) {
-                System.out.println("Invalid effect id.");
-                return;
+                throw new InvalidInputException("Invalid effect id.");
             }
 
             BoardEffect effect = selectBoard.getEffect(index);
