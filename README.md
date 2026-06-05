@@ -43,8 +43,7 @@ subgraph Game Flow
     setupGame -- Game created --> placeShips
     placeShips -- Ships placed --> placeEffects
     placeEffects -- Effects hidden on board --> combat
-    combat -- Combat ended,
-        switch player --> combat
+    combat -- Combat ended, switch player --> combat
     combat -- Game ended --> gameOver
 end
 ```
@@ -70,35 +69,33 @@ end
 
 ```mermaid
 flowchart
-subgraph Place ships
+subgraph Place Ships
     direction TB
-    getShipInfo[[Enter ship placement info]]
+    playerOnePlacement[[Player 1 enters ship placement]]
     
-    placeShip{Place ship}
+    placePlayerOneShip{Place Player 1 ship}
     
-    nextTask[[Move to effect placement]]
+    playerTwoPlacement[Player 2 enters ship placement]
     
-    getShipInfo -- Ship info player name, ship id, x y cooridnate --> placeShip
-    placeShip -. Ship placed, show update board .-> nextTask
-    placeShip -.  Invalid location, outside board, or overlap .-> getShipInfo    
-end
-```
-
-#### Place Effect
-
-```mermaid
-flowchart
-subgraph Place Effects
-    direction TB
-    shipsPlaced[[Ships placed]]
-
-    placeEffect{Place random effects}
-
-    effectsReady[[Effects hidden on board]]
-
-    shipsPlaced -- Empty cell locations and number of effects --> placeEffect
-    placeEffect -. Effects placed on cells without ships .-> effectsReady
-    placeEffect -. No empty cells or placement failed .-> shipsPlaced
+    placePlayerTwoShip{Place Player 2 ship}
+    
+    placementComplete[[Ship placement complete]]
+    
+    playerOnePlacement -- Ship id and x y coordinate --> placePlayerOneShip
+    
+    placePlayerOneShip -. Invalid location, outside board, or overlap .-> playerOnePlacement
+    
+    placePlayerOneShip -. Player 1 still has ships to place, show updated board .-> playerOnePlacement
+    
+    placePlayerOneShip -. Player 1 placed all ships .-> playerTwoPlacement
+    
+    playerTwoPlacement -- Ship id and x y coordinate --> placePlayerTwoShip
+    
+    placePlayerTwoShip -. Invalid location, outside board, or overlap .-> playerTwoPlacement
+    
+    placePlayerTwoShip -. Player 2 still has ships to place, show updated board .-> playerTwoPlacement
+    
+    placePlayerTwoShip -. Player 2 placed all ships .-> placementComplete
 end
 ```
 #### Combat
@@ -108,46 +105,27 @@ flowchart
 subgraph Combat
 direction TB
 
-    getAction[[Get action]]
+getAction[[Get action]]
 
-    moveShip{Move ship}
-    selectShip[Select ship]
-    normalMove{Do normal move}
-    submarineMove{Do submarine move}
-    applyEffect{Apply effect}
-    fireAttack{Fire attack}
-    checkWinner{Check winner}
-    endGame[[**__Game__** ended]]
-    endCombat[[Combat ended]]
+resolveMove{Resolve movement}
 
-    getAction -- Move ship + confirmation --> moveShip
-    moveShip -. Show movable ships .-> selectShip
-    moveShip -. Skip movement .-> fireAttack
+resolveAttack{Resolve attack}
 
-    selectShip -- Selects normal ship --> normalMove
-    normalMove -. Invalid move .-> getAction
-    normalMove -. Ship moved .-> applyEffect
+endGame[[**__Game__** ended]]
 
-    selectShip -- Selects submarine --> submarineMove
-    submarineMove -. Invalid target or no valid path .-> getAction
-    submarineMove -. Submarine moved .-> applyEffect
+getAction -- Move ship or skip movement, select attacking ship and target x y --> resolveMove
 
-    applyEffect -. No effect found .-> fireAttack
-    applyEffect -. Effect applie and ship survives .-> fireAttack
-    applyEffect -. Effect applied and ship destroyed .-> checkWinner
+resolveMove -. Invalid movement choice, show error and ask again .-> getAction
 
-    fireAttack -- Select attacking ship and target x y --> checkWinner
-    fireAttack -. Invalid target or already fired .-> getAction
-    fireAttack -. Hit or miss recorded .-> checkWinner
+resolveMove -. Movement skipped, or ship moved, apply effect if found .-> resolveAttack
 
-    checkWinner -. Player has no ships left .-> endGame
-    checkWinner -. Both players still have ships .-> endCombat
+resolveAttack -. Invalid attack target, show error and ask again .-> getAction
 
-    getAction -. Invalid or cancelled .-> getAction
-    selectShip -. Invalid selection .-> selectShip
+resolveAttack -. Attack completed, no winner yet, switch player .-> getAction
+
+resolveAttack -. Attack completed, player has no ships left .-> endGame
 end
 ```
-
 #### Submarine Movement 
 
 ```mermaid
@@ -162,8 +140,7 @@ subgraph Submarine Movement
     
     endMove[[Submarine movement ended]]
     
-    getTarget -- Submarine id
-        and target x y --> checkDestination
+    getTarget -- Submarine id and target x y --> checkDestination
     
     checkDestination -. Destination was already fired on .-> endMove
     checkDestination -. Destination is safe .-> checkPath
