@@ -1,9 +1,10 @@
 package comp2450.ui;
 
-import comp2450.logic.Game;
+import comp2450.model.Game;
 import comp2450.model.*;
 import comp2450.output.GamePrinter;
-
+import comp2450.exceptions.InvalidInputException;
+import comp2450.input.InputReader;
 import java.util.Scanner;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ public class REPL {
     private static Game game = null;
     private static Player selectPlayer = null;
     private static Board selectBoard = null;
+    private static InputReader inputReader;
 
     public static void main(String[] args) {
 
@@ -117,7 +119,8 @@ public class REPL {
     }
 
     public static void addGame(Scanner scanner) {
-        if (!game.hasGame() || game == null) {
+
+        if (game != null) {
             System.out.println(" A game already exists. Use REMOVE GAME first");
             return;
         }
@@ -193,6 +196,14 @@ public class REPL {
 
         return new Coordinate(x,y);
     }
+    private static boolean alreadyHasSubmarine(Player player) {
+        for (Ship ship: player.getShips()) {
+            if(ship.getShipType() == ShipType.SUBMARINE) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static void addShip(Scanner scanner) {
         if(!hasSelectBoard()) {
@@ -202,6 +213,20 @@ public class REPL {
         System.out.println("Enter ship size: ");
         int size = readInt(scanner);
 
+        System.out.println("Enter ship type: 1 for NORMAL, 2 for SUBMARINE");
+        int typeChoice = readInt(scanner);
+
+        ShipType shipType;
+
+        if (typeChoice == 2) {
+            if (alreadyHasSubmarine(selectPlayer)) {
+                System.out.println("This player already has one submarine");
+            }
+            shipType = ShipType.SUBMARINE;
+        } else {
+            shipType = ShipType.NORMAL;
+        }
+
         List<Coordinate> coordinates = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
@@ -210,7 +235,7 @@ public class REPL {
             coordinates.add(coordinate);
         }
 
-        Ship ship = new Ship(size, coordinates);
+        Ship ship = new Ship(size, coordinates, shipType);
 
         selectBoard.addShip(ship);
         selectPlayer.addShip(ship);
