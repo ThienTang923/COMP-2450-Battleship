@@ -10,8 +10,8 @@ public class InputReader {
 
     private Scanner scanner;
 
-    public InputReader(Scanner scanner) {
-        this.scanner = scanner;
+    public InputReader() {
+        scanner = new Scanner(System.in);
     }
 
     public String readString(String prompt) throws InvalidInputException {
@@ -75,5 +75,17 @@ public class InputReader {
 
         return direction;
     }
+
+    public String readCommand(String prompt) throws InvalidInputException {
+        String command = readString(prompt).trim().toUpperCase();
+
+        if (command.isBlank()) {
+            throw new InvalidInputException("Command cannot be empty. Type HELP to see available commands.");
+        }
+
+        return command;
+    }
+
+
 }
 
