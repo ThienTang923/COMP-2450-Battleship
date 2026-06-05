@@ -12,13 +12,22 @@ public class BoardEffect {
 
         this.effect = effect;
         this.coordinate = coordinate;
+
+        checkBoardEffect();
     }
 
     public Effect getEffect() {
+        checkBoardEffect();
         return effect;
     }
 
     public Coordinate getCoordinate() {
+        checkBoardEffect();
         return coordinate;
+    }
+
+    private void checkBoardEffect() {
+        Preconditions.checkNotNull(effect, "Effect should not be null.");
+        Preconditions.checkNotNull(coordinate, "Coordinate should not be null.");
     }
 }

@@ -1,10 +1,6 @@
-package comp2450.logic;
+package comp2450.model;
 
 import com.google.common.base.Preconditions;
-import comp2450.model.Board;
-import comp2450.model.Player;
-import comp2450.model.Status;
-import comp2450.model.Turn;
 
 public class Game {
 
@@ -26,6 +22,8 @@ public class Game {
         this.player2 = player2;
         this.currentTurn = Turn.PLAYER_ONE;
         this.gameStatus = Status.NOT_STARTED;
+
+        checkGame();
     }
 
     public static Game getInstance(Player player1, Player player2) {
@@ -50,14 +48,18 @@ public class Game {
     }
 
     public Player getPlayer1() {
+
+        checkGame();
         return this.player1;
     }
 
     public Player getPlayer2() {
+        checkGame();
         return this.player2;
     }
 
     public Turn getCurrentTurn() {
+        checkGame();
         return currentTurn;
     }
 
@@ -68,17 +70,21 @@ public class Game {
     }
 
     public void startGame() {
+        checkGame();
         Preconditions.checkState(gameStatus == Status.NOT_STARTED, "Game has already started");
 
         gameStatus = Status.RUNNING;
+        checkGame();
     }
 
     public Status getGameStatus() {
+
+        checkGame();
         return gameStatus;
     }
 
     public void switchTurn() {
-
+        checkGame();
         Preconditions.checkState(gameStatus == Status.RUNNING, "game must be running to switch turns");
 
         if (currentTurn == Turn.PLAYER_ONE) {
@@ -86,6 +92,15 @@ public class Game {
         } else {
             currentTurn = Turn.PLAYER_ONE;
         }
+        checkGame();
+    }
+
+    private void checkGame() {
+        Preconditions.checkNotNull(player1, "player1 should not be null.");
+        Preconditions.checkNotNull(player2, "player2 should not be null.");
+        Preconditions.checkState(player1 != player2, "players should be different.");
+        Preconditions.checkNotNull(currentTurn, "currentTurn should not be null.");
+        Preconditions.checkNotNull(gameStatus, "gameStatus should not be null.");
     }
 
 }
