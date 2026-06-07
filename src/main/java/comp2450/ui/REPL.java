@@ -1,5 +1,6 @@
 package comp2450.ui;
 
+import comp2450.logic.UsingEffect;
 import comp2450.model.Game;
 import comp2450.model.*;
 import comp2450.output.GamePrinter;
@@ -19,6 +20,7 @@ public class REPL {
     private static Player selectPlayer = null;
     private static Board selectBoard = null;
     private static InputReader inputReader;
+    private static UsingEffect usingEffect;
 
     public static void main(String[] args) {
 
@@ -27,10 +29,9 @@ public class REPL {
 
         System.out.println("Welcome to Battleship++");
         System.out.println("Type HELP to see available commands.");
-       
+
         while (running) {
             try {
-                System.out.print("> ");
                 String command = inputReader.readCommand("> ");
 
                 switch (command) {
@@ -211,48 +212,71 @@ public class REPL {
             try {
                 int size = inputReader.readPositiveInt("Enter ship size: ");
 
+                if (size > selectBoard.getXSize() * selectBoard.getYSize()) {
+                    throw new InvalidInputException("Ship size is too large. It cannot be bigger than the total number of board coordinate.");
+                }
+
                 int typeChoice = inputReader.readInt("Enter ship type: 1 for NORMAL, 2 for SUBMARINE");
 
                 ShipType shipType;
-                boolean shipChosen = true;
 
                 if (typeChoice == 2) {
                     if (alreadyHasSubmarine(selectPlayer)) {
-                        shipChosen = false;
                         throw new InvalidInputException("This player already has one submarine. \n" +
                                 "Please choose NORMAL ship instead." );
-                    } else {
-                        shipType = ShipType.SUBMARINE;
                     }
+                    shipType = ShipType.SUBMARINE;
+
                 } else if (typeChoice == 1) {
                     shipType = ShipType.NORMAL;
                 } else {
-                    shipChosen = false;
                     throw new InvalidInputException("Invalid ship type. Please enter 1 for NORMAL or 2 for SUBMARINE.");
                 }
 
-                if (shipChosen) {
-                    List<Coordinate> coordinates = new ArrayList<>();
+                List<Coordinate> coordinates = new ArrayList<>();
 
-                    for (int i = 0; i < size; i++) {
+                for (int i = 0; i < size; i++) {
 
-                        Coordinate coordinate = readCoordinateInsideBoard("Enter coordinate " + (i + 1) + " as x y: ");
-                        coordinates.add(coordinate);
-                    }
-
-                    Ship ship = new Ship(size, coordinates, shipType);
-
-                    selectBoard.addShip(ship);
-                    selectPlayer.addShip(ship);
-
-                    System.out.println("Ship added. ");
-                    valid = true;
+                    Coordinate coordinate = readValidCoordinate("Enter coordinate " + (i + 1) + " as x y: ", coordinates);
+                    coordinates.add(coordinate);
                 }
+
+                Ship ship = new Ship(size, coordinates, shipType);
+
+                selectBoard.addShip(ship);
+                selectPlayer.addShip(ship);
+
+                System.out.println("Ship added. ");
+                valid = true;
+
             } catch (InvalidInputException iie) {
                 System.out.println("Input error: " + iie.getMessage());
                 System.out.println("Please try to add ship again.");
             }
         }
+    }
+
+    private static Coordinate readValidCoordinate(String prompt, List<Coordinate> coordinates) throws InvalidInputException {
+
+        boolean validCoordinate = false;
+        Coordinate coordinate = null;
+
+        while (!validCoordinate) {
+            try {
+                coordinate = readCoordinateInsideBoard(prompt);
+
+                if (coordinates.contains(coordinate)) {
+                    throw new InvalidInputException("This coordinate is already used by this ship. Please enter a different coordinate.");
+                }
+                validCoordinate = true;
+
+            } catch (InvalidInputException iie) {
+                System.out.println("Input error: " + iie.getMessage());
+                System.out.println("Please enter the coordinate again.");
+            }
+        }
+
+        return coordinate;
     }
 
     private static Coordinate readCoordinateInsideBoard(String prompt) throws InvalidInputException {
@@ -271,26 +295,35 @@ public class REPL {
         if (!hasSelectBoard()) {
             return;
         }
-        try {
 
-            String effectText = inputReader.readString("Enter effect type: \n " +
-                    "(DOUBLE_DAMAGE, SHIELD, HEAL, RADAR) \n").trim().toUpperCase();
-            Effect effect;
+        boolean addingEffects = false;
 
+        while (!addingEffects) {
             try {
-                effect = Effect.valueOf(effectText);
-            } catch (IllegalArgumentException iae) {
-                throw new InvalidInputException("Invalid effect type. ");
+
+                String effectText = inputReader.readString("Enter effect type: \n " +
+                        "(DOUBLE_DAMAGE, SHIELD, HEAL,  or DONE to stop: ) \n").trim().toUpperCase();
+
+                if (effectText.equals("DONE")) {
+                    addingEffects = true;
+                } else {
+                    Effect effect;
+
+                    try {
+                        effect = Effect.valueOf(effectText);
+                    } catch (IllegalArgumentException iae) {
+                        throw new InvalidInputException("Invalid effect type. ");
+                    }
+
+
+                    usingEffect.placeChosenEffectRandomly(selectBoard, effect);
+
+                    System.out.println(effect + " effect was added to a random empty location.");
+                }
+                
+            } catch (InvalidInputException iie) {
+                System.out.println("Invalid input: " + iie.getMessage());
             }
-
-            Coordinate coordinate = inputReader.readCoordinate("Enter coordinate as x y: ");
-
-            BoardEffect boardEffect = new BoardEffect(effect, coordinate);
-            selectBoard.addEffect(boardEffect);
-
-            System.out.println("Effect added. ");
-        } catch (InvalidInputException iie) {
-            System.out.println("Invalid input: " + iie.getMessage());
         }
     }
 
