@@ -2,10 +2,12 @@ package comp2450.logic;
 
 import comp2450.model.*;
 import com.google.common.base.Preconditions;
+import comp2450.exceptions.InvalidAttackException;
 
 public class Attack {
 
-    public boolean attack(Player attacker, Player defender, Ship attackingShip, Coordinate target) {
+    public boolean attack(Player attacker, Player defender, Ship attackingShip, Coordinate target) throws InvalidAttackException {
+
         Preconditions.checkNotNull(attacker, "attacker cannot be null");
         Preconditions.checkNotNull(defender, "defender cannot be null");
         Preconditions.checkNotNull(attackingShip, "attacking ship cannot be null");
@@ -15,14 +17,22 @@ public class Attack {
 
         Preconditions.checkNotNull(defenderBoard, "defender board cannot be null");
 
+        if (!attacker.getShips().contains(attackingShip)) {
+            throw new InvalidAttackException("Invalid attacking ship. The attacking player does not own this ship");
+        }
+
+        if (attackingShip.isSunk()) {
+            throw new InvalidAttackException("Invalid attacking ship. A sunk ship cannot attack.");
+        }
+
         if(!defenderBoard.isInsideBoard(target)) {
-            return false;
+            throw new InvalidAttackException("Attack target is outside the board. Choose a coordinate inside the board.");
         }
 
         Cell targetCell = defenderBoard.getCell(target);
 
         if (targetCell.isAttacked()) {
-            return false;
+            throw new InvalidAttackException("This coordinate was already attacked. Choose a different target");
         }
 
         targetCell.markAttacked();

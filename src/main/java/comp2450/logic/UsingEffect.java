@@ -1,12 +1,8 @@
 package comp2450.logic;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import comp2450.model.*;
-
-import java.security.cert.CertPathParameters;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 
@@ -18,22 +14,20 @@ public class UsingEffect {
         this.random = new Random();
     }
 
-    public void placeRandomEffect(Board board, int numOfEffects) {
+    public void placeChosenEffectRandomly(Board board, Effect effect) {
         Preconditions.checkNotNull(board, "board cannot be null");
-        Preconditions.checkArgument(numOfEffects >= 0,"number of effects cannot be negative");
+        Preconditions.checkNotNull(effect, "effect cannot be null");
 
         ArrayList<Coordinate> emptyCoordinates = getEmptyCoordinate(board);
 
-        Preconditions.checkArgument(numOfEffects <= emptyCoordinates.size(),"number of effects cannot be greater than empty spaces");
+        Preconditions.checkArgument(!emptyCoordinates.isEmpty(), "there are no empty spaces for an effect");
 
         Collections.shuffle(emptyCoordinates);
 
-        for (int i= 0; i < numOfEffects; i++) {
-            Coordinate coordinate = emptyCoordinates.get(i);
-            Effect effect = getRandomEffect();
-            BoardEffect boardEffect = new BoardEffect(effect, coordinate);
-            board.addEffect(boardEffect);
-        }
+        Coordinate coordinate = emptyCoordinates.get(0);
+        BoardEffect boardEffect = new BoardEffect(effect, coordinate);
+
+        board.addEffect(boardEffect);
     }
 
     private ArrayList<Coordinate> getEmptyCoordinate(Board board) {
@@ -41,12 +35,12 @@ public class UsingEffect {
 
         ArrayList<Coordinate> emptyCoordinates = new ArrayList<>();
 
-        for (int x = 0; x < board.getXSize(); x++) {
+        for (int i = 0; i < board.getXSize(); i++) {
             for (int y = 0; y < board.getYSize(); y++) {
 
-                Coordinate coordinate = new Coordinate(x,y);
+                Coordinate coordinate = new Coordinate(i,y);
 
-                if (!board.getCell(coordinate).containShip()) {
+                if (!board.getCell(coordinate).containShip() && !hasEffectAt(board, coordinate)) {
                     emptyCoordinates.add(coordinate);
                 }
             }
@@ -55,11 +49,17 @@ public class UsingEffect {
         return emptyCoordinates;
     }
 
-    private Effect getRandomEffect() {
-        Effect[] effects = Effect.values();
-        int index = this.random.nextInt(effects.length);
+    private boolean hasEffectAt(Board board, Coordinate coordinate) {
+        Preconditions.checkNotNull(board, "Board cannot be null");
+        Preconditions.checkNotNull(coordinate, "coordinate cannot be null");
 
-        return effects[index];
+        for (BoardEffect boardEffect : board.getEffects()) {
+            if (boardEffect.getCoordinate().equals(coordinate)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private BoardEffect findEffect(Board board, Coordinate coordinate) {
@@ -98,20 +98,27 @@ public class UsingEffect {
 
         Preconditions.checkNotNull(ship, "ship cannot be null");
         Preconditions.checkNotNull(effect, "effect cannot be null");
+        Preconditions.checkNotNull(enemyBoard, "enemy board cannot be null");
+        Preconditions.checkNotNull(shipCoordinate, "ship coordinate cannot be null");
 
         if (effect == Effect.DOUBLE_DAMAGE) {
             ship.activateDoubleDamage();
+            return "Double damage activated. This ship's next successful attack does 2 damage.";
         } else if (effect == Effect.HEAL) {
             ship.heal();
+            return "Heal activated. This ship restored 1 health.";
+
         } else if (effect == Effect.SHIELD) {
             ship.activateShield();
+            return "Heal activated. This ship restored 1 health.";
+
         } else if (effect == Effect.RADAR) {
             boolean foundEnemy = hasEnemyShipNearby(enemyBoard, shipCoordinate);
 
             if (foundEnemy) {
-                return "Radar activated. Eneymy ship detected nearby";
+                return "Radar activated. Enemy ship detected nearby.";
             } else {
-                return "Radar activated. No enemy ship nearby";
+                return "Radar activated. No enemy ship nearby.";
             }
         }
         return "Unknown effect";
@@ -126,18 +133,18 @@ public class UsingEffect {
 
         ArrayList<Coordinate> nearbyCoordinates = new ArrayList<>();
 
-        nearbyCoordinates.add(new Coordinate(x+1,y));
-        nearbyCoordinates.add(new Coordinate(x-1,y));
-        nearbyCoordinates.add(new Coordinate(x,y+1));
-        nearbyCoordinates.add(new Coordinate(x,y-1));
+        return hasShipAt(enemyBoard, x+1,y) || hasShipAt(enemyBoard, x-1,y) || hasShipAt(enemyBoard, x, y+1) || hasShipAt(enemyBoard, x, y-1);
+    }
 
-        for (Coordinate coordinate : nearbyCoordinates) {
-            if (enemyBoard.isInsideBoard(coordinate)) {
-                if (enemyBoard.getCell(coordinate).containShip()) {
-                    return true;
-                }
-            }
+    private boolean hasShipAt(Board board, int x, int y) {
+        Preconditions.checkNotNull(board, "Board cannot be null.");
+
+        if (x <0 || y <0 || x>= board.getXSize() || y >= board.getYSize()) {
+            return false;
         }
-        return false;
+
+        Coordinate coordinate = new Coordinate(x, y);
+
+        return board.getCell(coordinate).containShip();
     }
 }

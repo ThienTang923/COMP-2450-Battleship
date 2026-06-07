@@ -1,7 +1,6 @@
 package comp2450.logic;
 
 import com.google.common.base.Preconditions;
-import comp2450.exceptions.InvalidInputException;
 import comp2450.exceptions.InvalidMoveException;
 import comp2450.model.*;
 
@@ -15,24 +14,36 @@ public class Movement {
         this.pathFinder = new PathFinder();
     }
 
-    private Coordinate getCoordinateAfterMove(Coordinate coordinate, String direction) throws InvalidMoveException {
+    private Coordinate getCoordinateAfterMove(Board board, Coordinate coordinate, String direction) throws InvalidMoveException {
+
+        Preconditions.checkNotNull(board, "board cannot be null");
         Preconditions.checkNotNull(coordinate, "coordinate cannot be null");
         Preconditions.checkNotNull(direction, "direction cannot be null");
 
         int x = coordinate.getX();
         int y = coordinate.getY();
 
+        int newX = x;
+        int newY = y;
+
         if (direction.equalsIgnoreCase("UP")) {
-            return new Coordinate(x, y-1);
+            newY = y - 1;
         } else if (direction.equalsIgnoreCase("DOWN")) {
-            return new Coordinate(x, y+1);
+            newY = y + 1;
         } else if (direction.equalsIgnoreCase("LEFT")) {
-            return new Coordinate(x-1, y);
+            newX = x - 1;
         } else if (direction.equalsIgnoreCase("RIGHT")) {
-            return new Coordinate(x+1,y);
+            newX = x + 1;
+        } else {
+            throw new InvalidMoveException("Invalid direction. Please enter UP, DOWN, LEFT, or RIGHT.");
         }
 
-        throw new InvalidMoveException("Invalid direction. Please enter UP, DOWN, LEFT or RIGHT.");
+        if (newX < 0 || newY < 0 || newX >= board.getXSize() || newY >= board.getYSize()) {
+            throw new InvalidMoveException("Ship cannot move outside the board. Choose another direction.");
+        }
+
+        return new Coordinate(newX, newY);
+
     }
     public boolean moveNormalShip(Board board, Ship ship, String direction) throws InvalidMoveException {
 
@@ -44,12 +55,9 @@ public class Movement {
         if (ship.getShipType() != ShipType.NORMAL) {
             throw new InvalidMoveException("Only NORMAL ship can use normal movement.");
         }
-        Coordinate oldCoordinate = ship.getCoordinates().get(0);
-        Coordinate newCoordinate = getCoordinateAfterMove(oldCoordinate, direction);
 
-        if (!board.isInsideBoard(newCoordinate)) {
-            throw new InvalidMoveException("Ship cannot move outside the board. Choose another direction");
-        }
+        Coordinate oldCoordinate = ship.getCoordinates().get(0);
+        Coordinate newCoordinate = getCoordinateAfterMove(board, oldCoordinate, direction);
 
         Cell newCell = board.getCell(newCoordinate);
 
@@ -68,6 +76,7 @@ public class Movement {
     }
 
     public boolean moveSubmarine(Board board, Ship ship, Coordinate target) throws InvalidMoveException {
+
         Preconditions.checkNotNull(board, "board cannot be null");
         Preconditions.checkNotNull(ship, "ship cannot be null");
         Preconditions.checkNotNull(target, "target cannot be null");
@@ -78,7 +87,7 @@ public class Movement {
         }
 
         if (!board.isInsideBoard(target)) {
-            throw new InvalidMoveException("Submarine target is outside the board. Choose a valid coordinate.");
+            throw new InvalidMoveException("Submarine cannot move to a coordinate that was already attacked. ");
         }
 
         Cell targetCell = board.getCell(target);

@@ -38,7 +38,7 @@ public class PathFinder {
 
                 visited.add(current);
 
-                ArrayList<Coordinate> neighbours = getNeightbours(board, current);
+                ArrayList<Coordinate> neighbours = getNeighbours(board, current);
 
                 for (Coordinate next : neighbours) {
                     if (next.equals(target)) {
@@ -57,7 +57,7 @@ public class PathFinder {
         return false;
     }
 
-    private ArrayList<Coordinate> getNeightbours(Board board, Coordinate coordinate) {
+    private ArrayList<Coordinate> getNeighbours(Board board, Coordinate coordinate) {
         Preconditions.checkNotNull(board, "board cannot be null");
         Preconditions.checkNotNull(coordinate, "coordinate cannot be null");
 
@@ -66,21 +66,20 @@ public class PathFinder {
         int x = coordinate.getX();
         int y = coordinate.getY();
 
-        addIfInsideBoard(board, neighbours, new Coordinate(x+1,y));
-        addIfInsideBoard(board, neighbours, new Coordinate(x-1,y));
-        addIfInsideBoard(board, neighbours, new Coordinate(x,y+1));
-        addIfInsideBoard(board, neighbours, new Coordinate(x,y-1));
+        addIfInsideBoard(board, neighbours, x+1,y);
+        addIfInsideBoard(board, neighbours, x-1,y);
+        addIfInsideBoard(board, neighbours, x,y+1);
+        addIfInsideBoard(board, neighbours, x,y-1);
 
         return neighbours;
     }
 
-    private void addIfInsideBoard(Board board, ArrayList<Coordinate> coordinates, Coordinate coordinate) {
+    private void addIfInsideBoard(Board board, ArrayList<Coordinate> coordinates, int x, int y) {
         Preconditions.checkNotNull(board, "board cannot be null");
         Preconditions.checkNotNull(coordinates, "coordinates cannot be null");
-        Preconditions.checkNotNull(coordinate, "coordinate cannot be null");
 
-        if (board.isInsideBoard(coordinate)) {
-            coordinates.add(coordinate);
+        if (x >= 0 && y>=0 && x < board.getXSize() && y < board.getYSize()) {
+            coordinates.add(new Coordinate(x, y));
         }
     }
 
