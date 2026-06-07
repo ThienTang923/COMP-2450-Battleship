@@ -157,7 +157,13 @@ end
 
 The project has been built and tested to be run in IntelliJ IDEA and Maven.
 
-To run this project in IntelliJ: Open the main entry point file: `src/main/java/comp2450/REPL`
+The functional application can be started by running the `main` method in:
+
+`src/main/java/comp2450/MainGame.java`
+
+The REPL is still available as a developer/ testing tool in:
+
+`src/main/java/comp2450/REPL.java`
 
 and then run the main method in `REPL`.
 
@@ -169,8 +175,11 @@ and then run the main method in `REPL`.
 * `ADD GAME` — Creates a new game using two existing players.
 * `SELECT BOARD` — Selects the current board by player name.
 * `ADD SHIP` — Adds a ship to the selected board.
-* `ADD EFFECT` — Adds an effect to the selected board.
+* `ADD EFFECT` — Allows the user to choose an effect type, then randomly places that effect on an empty 
+coordinate on the selected board. The command keeps asking for effects until the user types `DONE`.
 * `SHOW GAME` — Displays both boards and player information.
+* `ATTACK` — The current player chooses one of their ships to attack a coordinate on the opponent’s board. 
+If the attack is invalid, an error message is shown. If all defender ships are sunk, the game ends.
 * `SHOW SHIPS` — Displays all ships in the current game.
 * `SHOW EFFECTS` — Displays all effects in the current game.
 * `MOVE SHIP` — Moves a selected ship to new coordinates.
@@ -179,10 +188,28 @@ and then run the main method in `REPL`.
 * `REMOVE GAME` — Deletes the current game.
 * `EXIT` — Exits the REPL.
 
+### Phase 4 Explanation:
+
+#### Effects:
+* `DOUBLE_DAMAGE` - activates double damage for the ship's next successful attack.
+* `SHIELD` - blocks the next damage taken by the ship.
+* `HEAL` - restores health to the ship by one unit.
+* `RADAR` - checks nearby enemy board coordinates by using the coordinates of the player's ship and report whether an enemy is nearby.
+
+#### Error Handling:
+
+The project uses custom exceptions to communicate errors between layers:
+* `InvalidInputException` - is used when user input cannot be converted into valid game input.
+* `InvalidMoveException` - is used when a ship movement is not allowed.
+* `InvalidAttackException` - is used when an attack is not allowed.
+
+The UI layer catches these exceptions and prints clear error messages so normal valid input does not crash the program.
+
 ## Changes
 
 During implementation, I have made several changes to the original domain model in Phase 1
 
+### Phase 2 change:
 * Renamed `Map` to `Board` because Java already has a built-in `Map` interface, so I used `Board` to avoid with the built-in and better represents the Battleship game area.
 * Changed abstract types such as `Name`, `WholeNumber`, and `PositiveNumber` into concrete Java types such as `String` and `int`.
 * Changed `Cell cells` into `Cell[][] cells` because the board is implemented as a two-dimensional grid.
@@ -196,6 +223,17 @@ During implementation, I have made several changes to the original domain model 
 * Updated the board-effect relationship so `Board` stores `BoardEffect` objects, because each board effect has both an effect type and a coordinate.
 * Create `Node`, `PathStack`, `LinkedPathStack` to support the future stack-based path-finding algorithm for submarine movement.
 * Add `ShipType` to distinguish normal ships from submarines because Phase 3 gives submarines special movement rules.
+
+### Phase 4 change:
+* Added `MainGame` as the main Phase 4 entry point.
+* Added `Movement` in the logic layer for normal ship and submarine movent.
+* Normal ship can move one time unit `UP`, `DOWN`, `LEFT` or `RIGHT`.
+* Submarines move by selecting a target coordinate and checking for a valid path using `PathFinder`.
+* Added `Attack` in the logic layer to place and apply effect.
+* Added `Using Effect` in the logic layer to place and apply effect
+* Changed `ADD EFFECT` so user chooses the effect type, and the program will handle by randomly place the effect in the board.
+* Added custom exceptions for invalid input, invalid movement, and invalid attacks.
+* Added `GamePlay` as a logic coordinator for current player, enemy player, turn switching, and winner checking.
 ## Domain Model
 
 The classic Battleship game contains two players. Each player has their own board and a collection of ships. A board is made up of cells, and each cell represents one coordinate on the grid. A ship occupies one or more cells on a player’s board. During the game, players make attacks by choosing coordinates on the opponent’s board.
