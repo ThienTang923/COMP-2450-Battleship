@@ -13,12 +13,22 @@ public class Attack {
         Preconditions.checkNotNull(attackingShip, "attacking ship cannot be null");
         Preconditions.checkNotNull(target, "target cannot be null");
 
+        if (attacker == defender) {
+            throw new InvalidAttackException("Invalid attack. Attacker cannot attack their own board. Choose the opponent as the defender.");
+        }
+
+        Board attackerBoard = attacker.getBoard();
         Board defenderBoard = defender.getBoard();
 
         Preconditions.checkNotNull(defenderBoard, "defender board cannot be null");
+        Preconditions.checkNotNull(attacker, "attacker board cannot be null");
 
         if (!attacker.getShips().contains(attackingShip)) {
             throw new InvalidAttackException("Invalid attacking ship. The attacking player does not own this ship");
+        }
+
+        if (!attackerBoard.getShips().contains(attackingShip)) {
+            throw new InvalidAttackException("Invalid attacking ship. The attacking player did not own this ship.");
         }
 
         if (attackingShip.isSunk()) {
@@ -37,6 +47,8 @@ public class Attack {
 
         targetCell.markAttacked();
 
+        boolean sunkShip = false;
+
         if (targetCell.containShip()) {
             Ship hitShip = targetCell.getShip();
             int damage = attackingShip.useAttackDamage();
@@ -50,12 +62,13 @@ public class Attack {
             if (hitShip.isSunk()) {
                 defenderBoard.removeShip(hitShip);
                 defender.removeShip(hitShip);
+                sunkShip = true;
             }
 
             attacker.setSuccessfulHits();
         } else {
             attacker.missedAttack();
         }
-        return true;
+        return sunkShip;
     }
 }
