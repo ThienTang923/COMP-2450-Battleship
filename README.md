@@ -18,139 +18,6 @@ The purpose of Phase 2 is to implement the domain model from Phase 1 and update 
 
 [Battleship]: https://en.wikipedia.org/wiki/Battleship_(game)
 
-## Flows of Interaction
-
-### Diagrams
-
-#### Overall Flow
-
-This diagram shows a general view of how the game is played. Each sub-task shown here is presented in more detail below.
-
-```mermaid
-flowchart
-subgraph Game Flow
-    direction TB
-    setupGame[[Setup Game]]
-    
-    placeShips[Place Ships]
-    
-    placeEffects[Place Effects]
-    
-    combat[Combat]
-    
-    gameOver[[Game Ended]]
-    
-    setupGame -- Game created --> placeShips
-    placeShips -- Ships placed --> placeEffects
-    placeEffects -- Effects hidden on board --> combat
-    combat -- Combat ended, switch player --> combat
-    combat -- Game ended --> gameOver
-end
-```
-
-#### Setup Game
-
-```mermaid
-flowchart
-subgraph setup Game
-    direction TB
-    getPlayers[[Enter player names]]
-    
-    createGame{Create Game}
-    
-    nextTask[[Move to ship placement]]
-
-    getPlayers -- Player names player one, player two --> createGame
-    createGame -. Game created, show player info .-> nextTask
-    createGame -. Invalid players or same player .-> getPlayers
-end
-```
-#### Place ships
-
-```mermaid
-flowchart
-subgraph Place Ships
-    direction TB
-    playerOnePlacement[[Player 1 enters ship placement]]
-    
-    placePlayerOneShip{Place Player 1 ship}
-    
-    playerTwoPlacement[Player 2 enters ship placement]
-    
-    placePlayerTwoShip{Place Player 2 ship}
-    
-    placementComplete[[Ship placement complete]]
-    
-    playerOnePlacement -- Ship id and x y coordinate --> placePlayerOneShip
-    
-    placePlayerOneShip -. Invalid location, outside board, or overlap .-> playerOnePlacement
-    
-    placePlayerOneShip -. Player 1 still has ships to place, show updated board .-> playerOnePlacement
-    
-    placePlayerOneShip -. Player 1 placed all ships .-> playerTwoPlacement
-    
-    playerTwoPlacement -- Ship id and x y coordinate --> placePlayerTwoShip
-    
-    placePlayerTwoShip -. Invalid location, outside board, or overlap .-> playerTwoPlacement
-    
-    placePlayerTwoShip -. Player 2 still has ships to place, show updated board .-> playerTwoPlacement
-    
-    placePlayerTwoShip -. Player 2 placed all ships .-> placementComplete
-end
-```
-#### Combat
-
-```mermaid
-flowchart
-subgraph Combat
-direction TB
-
-getAction[[Get action]]
-
-resolveMove{Resolve movement}
-
-resolveAttack{Resolve attack}
-
-endGame[[**__Game__** ended]]
-
-getAction -- Move ship or skip movement, select attacking ship and target x y --> resolveMove
-
-resolveMove -. Invalid movement choice, show error and ask again .-> getAction
-
-resolveMove -. Movement skipped, or ship moved, apply effect if found .-> resolveAttack
-
-resolveAttack -. Invalid attack target, show error and ask again .-> getAction
-
-resolveAttack -. Attack completed, no winner yet, switch player .-> getAction
-
-resolveAttack -. Attack completed, player has no ships left .-> endGame
-end
-```
-#### Submarine Movement 
-
-```mermaid
-flowchart
-subgraph Submarine Movement
-    direction TB
-    getTarget[[Enter submarine movement]]
-    
-    checkDestination{Check destination}
-    checkPath{Check fired path}
-    moveSubmarine[Move submarine]
-    
-    endMove[[Submarine movement ended]]
-    
-    getTarget -- Submarine id and target x y --> checkDestination
-    
-    checkDestination -. Destination was already fired on .-> endMove
-    checkDestination -. Destination is safe .-> checkPath
-    
-    checkPath -. No valid fired path .-> endMove
-    checkPath -. Valid fired path found .-> moveSubmarine
-    
-    moveSubmarine -. Show new submarine location .-> endMove
-end
-```
 ## REPL
 
 ### Building and Running the REPL
@@ -163,9 +30,18 @@ The functional application can be started by running the `main` method in:
 
 The REPL is still available as a developer/ testing tool in:
 
-`src/main/java/comp2450/REPL.java`
+`srcS/main/java/comp2450/REPL.java`
 
 and then run the main method in `REPL`.
+
+## Running
+
+* The functional application can be started by running the `main` method in `comp2450.MainGame`.
+* All test can be run by running the `main` method in `comp24050.test.TestHarness`.
+
+## Flows of Interaction
+
+### Diagrams
 
 ## Commands
 
@@ -175,11 +51,11 @@ and then run the main method in `REPL`.
 * `ADD GAME` — Creates a new game using two existing players.
 * `SELECT BOARD` — Selects the current board by player name.
 * `ADD SHIP` — Adds a ship to the selected board.
-* `ADD EFFECT` — Allows the user to choose an effect type, then randomly places that effect on an empty 
-coordinate on the selected board. The command keeps asking for effects until the user types `DONE`.
+* `ADD EFFECT` — Allows the user to choose an effect type, then randomly places that effect on an empty
+  coordinate on the selected board. The command keeps asking for effects until the user types `DONE`.
 * `SHOW GAME` — Displays both boards and player information.
-* `ATTACK` — The current player chooses one of their ships to attack a coordinate on the opponent’s board. 
-If the attack is invalid, an error message is shown. If all defender ships are sunk, the game ends.
+* `ATTACK` — The current player chooses one of their ships to attack a coordinate on the opponent’s board.
+  If the attack is invalid, an error message is shown. If all defender ships are sunk, the game ends.
 * `SHOW SHIPS` — Displays all ships in the current game.
 * `SHOW EFFECTS` — Displays all effects in the current game.
 * `MOVE SHIP` — Moves a selected ship to new coordinates.
@@ -224,7 +100,13 @@ During implementation, I have made several changes to the original domain model 
 * Create `Node`, `PathStack`, `LinkedPathStack` to support the future stack-based path-finding algorithm for submarine movement.
 * Add `ShipType` to distinguish normal ships from submarines because Phase 3 gives submarines special movement rules.
 
+### Phase 3 change:
+* Change `Place effects` to `Place effects automatically` in `Overall Flow` chart, because it should be a system step not a task for player to do.
+* Update new `Placing ships`, instead of having two task for each player to place the ship. Using `Enter ship placement info` and use a single processing `Place ship` to check with both player if the process complete or not.
+* Update new `Combat` by adding another subtask between `Resolve movement` and `Resolve attack` 
+* 
 ### Phase 4 change:
+* Changed `Ship` from store `ArrayList<Coordinate> coordinates` to one `Coordinate`
 * Added `MainGame` as the main Phase 4 entry point.
 * Added `Movement` in the logic layer for normal ship and submarine movent.
 * Normal ship can move one time unit `UP`, `DOWN`, `LEFT` or `RIGHT`.
@@ -234,6 +116,140 @@ During implementation, I have made several changes to the original domain model 
 * Changed `ADD EFFECT` so user chooses the effect type, and the program will handle by randomly place the effect in the board.
 * Added custom exceptions for invalid input, invalid movement, and invalid attacks.
 * Added `GamePlay` as a logic coordinator for current player, enemy player, turn switching, and winner checking.
+
+### Phase 5 change:
+
+* For Phase 5, I stopped adding new gameplay features and focused on testing, persistence, and clean up. I kept existing Phase 4 gameplay features:
+  ship placement, random effect placement, movement submarine movement, attack handling, and game state management.
+* I remove or avoided unused features that were not fully implement.
+
+
+#### Overall Flow
+
+This diagram shows a general view of how the game is played. Each sub-task shown here is presented in more detail below.
+```mermaid
+flowchart
+subgraph Game Flow
+    direction TB
+
+    setupGame[[Setup Game]]
+
+    placeShips[Place Ships]
+
+    placeEffects{Place effects automatically}
+
+    combat[Combat]
+
+    gameOver[[Game Ended]]
+
+    setupGame -- Game created --> placeShips
+
+    placeShips -- Both players have finished placing ships --> placeEffects
+
+    placeEffects -. Effects hidden on board .-> combat
+
+    combat -- Game ended --> gameOver
+
+    combat -- Attack completed, no winner yet, switch player --> combat
+end
+```
+
+#### Setup Game
+
+```mermaid
+flowchart
+subgraph setup Game
+    direction TB
+    getPlayers[[Enter player names]]
+    
+    createGame{Create Game}
+    
+    nextTask[[Move to ship placement]]
+
+    getPlayers -- Player names player one, player two --> createGame
+    createGame -. Game created, show player info .-> nextTask
+    createGame -. Invalid players or same player .-> getPlayers
+end
+```
+#### Place ships
+
+```mermaid
+flowchart
+subgraph Place Ships
+    direction TB
+
+    getShipInfo[[Enter ship placement info]]
+
+    placeShip{Place ship}
+
+    placementComplete[[Ship placement complete]]
+
+    getShipInfo -- Current player, ship id, and x y coordinate --> placeShip
+
+    placeShip -. Invalid location, outside board, or overlap .-> getShipInfo
+
+    placeShip -. Ship placed, current player still has ships to place .-> getShipInfo
+
+    placeShip -. Player 1 finished placing ships, Player 2 turn .-> getShipInfo
+
+    placeShip -. Both players have finished placing ships .-> placementComplete
+end
+```
+
+#### Combat
+
+```mermaid
+flowchart
+subgraph Combat
+    direction TB
+
+    getMoveAction[[Choose movement action]]
+
+    resolveMove{Resolve movement}
+
+    getAttackInfo[Enter attack information]
+
+    resolveAttack{Resolve attack}
+
+    endGame[[**__Game__** ended]]
+
+    getMoveAction -- Move normal ship one space, move submarine to the target, or skip movement --> resolveMove
+
+    resolveMove -. Invalid movement choice, show error and ask again .-> getMoveAction
+
+    resolveMove -. Movement skipped, or ship moved, no effect or effect applied .-> getAttackInfo
+
+    getAttackInfo -- Attacking ship and target x y --> resolveAttack
+
+    resolveAttack -. Invalid attack target, show error and ask again .-> getAttackInfo
+
+    resolveAttack -. Attack completed, defender still has ships, switch player .-> getMoveAction
+
+    resolveAttack -. Attack completed, defender has no ships left .-> endGame
+end
+``` 
+
+#### Submarine Movement 
+
+```mermaid
+flowchart
+subgraph Submarine Movement
+    direction TB
+
+    getTarget[[Enter submarine movement]]
+
+    moveSubmarine{Move submarine}
+
+    movementEnded[[Submarine movement ended]]
+
+    getTarget -- Submarine id and target x y --> moveSubmarine
+
+    moveSubmarine -. Invalid target,destination already fired on, or no valid fired path .-> getTarget
+
+    moveSubmarine -. Valid submarine movement, show new submarine location .-> movementEnded
+end
+```
+
 ## Domain Model
 
 The classic Battleship game contains two players. Each player has their own board and a collection of ships. A board is made up of cells, and each cell represents one coordinate on the grid. A ship occupies one or more cells on a player’s board. During the game, players make attacks by choosing coordinates on the opponent’s board.
