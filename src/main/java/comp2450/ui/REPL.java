@@ -1,5 +1,7 @@
 package comp2450.ui;
 
+import comp2450.exceptions.InvalidMoveException;
+import comp2450.logic.Movement;
 import comp2450.logic.UsingEffect;
 import comp2450.model.Game;
 import comp2450.model.*;
@@ -233,15 +235,9 @@ public class REPL {
                     throw new InvalidInputException("Invalid ship type. Please enter 1 for NORMAL or 2 for SUBMARINE.");
                 }
 
-                List<Coordinate> coordinates = new ArrayList<>();
+                Coordinate coordinate = inputReader.readCoordinate("Enter ship coordinate as x y: ");
 
-                for (int i = 0; i < size; i++) {
-
-                    Coordinate coordinate = readValidCoordinate("Enter coordinate " + (i + 1) + " as x y: ", coordinates);
-                    coordinates.add(coordinate);
-                }
-
-                Ship ship = new Ship(size, coordinates, shipType);
+                Ship ship = new Ship(size, coordinate, shipType);
 
                 selectBoard.addShip(ship);
                 selectPlayer.addShip(ship);
@@ -451,22 +447,24 @@ public class REPL {
 
             Ship ship = selectBoard.getShips().get(index);
 
-            List<Coordinate> newCoordinates = new ArrayList<>();
+            Movement movement = new Movement();
 
-            for (int i = 0; i < ship.getSize(); i++) {
-
-                Coordinate coordinate = inputReader.readCoordinate("Enter new coordinate: " + (i + 1) + " as x y: ");
-                newCoordinates.add(coordinate);
+            if (ship.getShipType() == ShipType.NORMAL) {
+                String direction = inputReader.readString("Enter direction UP, DOWN, LEFT or RIGHT: ");
+                movement.moveNormalShip(selectBoard, ship, direction);
+            } else if (ship.getShipType() == ShipType.SUBMARINE) {
+                Coordinate target = inputReader.readCoordinate("Enter submarine target coordinate as x y: ");
+                movement.moveSubmarine(selectBoard, ship, target);
+            } else {
+                throw new InvalidInputException("Invalid ship type. Choose a NORMAL ship or SUBMARINE.");
             }
-
-            selectBoard.removeShip(ship);
-            ship.move(newCoordinates);
-            selectBoard.addShip(ship);
 
             System.out.println("Ship moved.");
 
         } catch (InvalidInputException iie) {
             System.out.println("Input error: " + iie.getMessage());
+        } catch (InvalidMoveException ime) {
+            System.out.println("Input error" + ime.getMessage());
         }
     }
 

@@ -1,29 +1,27 @@
 package comp2450.model;
 
-import java.util.List;
 import com.google.common.base.Preconditions;
 
 public class Ship {
 
     private int size;
-    private List<Coordinate> coordinates;
+    private Coordinate coordinate;
     private int health;
     private int currentHealth;
     private ShipType shipType;
     private boolean doubleDamage;
     private boolean shielded;
 
-    public Ship(int size, List<Coordinate> coordinates, ShipType shipType) {
+    public Ship(int size,Coordinate coordinate, ShipType shipType) {
 
         Preconditions.checkArgument(size >0, "size must be positive");
-        Preconditions.checkNotNull(coordinates, "coordinates cannot be null");
-        Preconditions.checkArgument(coordinates.size() == size, "coordinates must match ship size");
+        Preconditions.checkNotNull(coordinate, "coordinates cannot be null");
         Preconditions.checkNotNull(shipType, "ship type cannot be null");
 
         this.size = size;
         this.health = size;
         this.currentHealth = size;
-        this.coordinates = coordinates;
+        this.coordinate = coordinate;
         this.shipType = shipType;
         this.doubleDamage = false;
         this.shielded = false;
@@ -34,13 +32,12 @@ public class Ship {
         return this.shipType;
     }
 
-    public void move(List<Coordinate> newCoordinates) {
+    public void move(Coordinate newCoordinate) {
 
         checkShip();
-        Preconditions.checkNotNull(newCoordinates);
-        Preconditions.checkArgument(newCoordinates.size() == size, "new coordinates must match ship size");
+        Preconditions.checkNotNull(newCoordinate);
 
-        this.coordinates = newCoordinates;
+        this.coordinate = newCoordinate;
         checkShip();
     }
 
@@ -54,20 +51,25 @@ public class Ship {
         return this.size;
     }
 
+    public int getHealth() {
+        checkShip();
+        return this.health;
+    }
+
     public int getCurrentHealth() {
         checkShip();
         return this.currentHealth;
     }
 
-    public List<Coordinate> getCoordinates() {
+    public Coordinate getCoordinate() {
         checkShip();
-        return this.coordinates;
+        return this.coordinate;
     }
 
     private void checkShip() {
         Preconditions.checkArgument(this.size > 0, "size must be positive");
-        Preconditions.checkNotNull(this.coordinates, "coordinates cannot be null");
-        Preconditions.checkArgument(this.coordinates.size() == this.size, "coordinates size must match ship size");
+        Preconditions.checkNotNull(this.coordinate, "coordinates cannot be null");
+        Preconditions.checkArgument(this.health == this.size, "health must match ship size");
         Preconditions.checkNotNull(this.shipType, "ship type cannot be null");
         Preconditions.checkArgument(this.currentHealth >= 0, "current health cannot be negative");
         Preconditions.checkArgument(this.currentHealth <= this.health, "current health cannot be greater than health");
@@ -107,6 +109,8 @@ public class Ship {
         checkShip();
 
         this.shielded = true;
+
+        checkShip();
     }
 
     public boolean hasShield() {
@@ -138,4 +142,6 @@ public class Ship {
 
         checkShip();
     }
+
+
 }

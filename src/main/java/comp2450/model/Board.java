@@ -35,17 +35,14 @@ public class Board {
     public void addShip(Ship ship) {
         checkBoard();
         Preconditions.checkNotNull(ship, "ship cannot be null");
+
+        Coordinate coordinate = ship.getCoordinate();
+
+        Preconditions.checkArgument(isInsideBoard(coordinate),"Ship coordinate should be inside the board.");
+        Preconditions.checkArgument(!getCell(coordinate).containShip(), "Ship should not overlap another ship.");
+
         ships.add(ship);
-
-        for (Coordinate coordinate : ship.getCoordinates()) {
-            Preconditions.checkArgument(isInsideBoard(coordinate), "Ship coordinate should be inside board.");
-            Preconditions.checkArgument(!getCell(coordinate).containShip(), "Ship should not overlap another ship.");
-        }
-
-        for (Coordinate coordinate : ship.getCoordinates()) {
-            Cell cell = getCell(coordinate);
-            cell.placeShip(ship);
-        }
+        getCell(coordinate).placeShip(ship);
         checkBoard();
     }
 
@@ -54,11 +51,10 @@ public class Board {
 
         Preconditions.checkNotNull(ship, "ship cannot be null");
         Preconditions.checkArgument(ships.contains(ship), "ship should exist on this board");
-        ships.remove(ship);
 
-        for (Coordinate coordinate : ship.getCoordinates()) {
-            getCell(coordinate).removeShip();
-        }
+        Coordinate coordinate = ship.getCoordinate();
+        getCell(coordinate).removeShip();
+        ships.remove(ship);
         checkBoard();
     }
 
@@ -141,4 +137,5 @@ public class Board {
             }
         }
     }
+
 }

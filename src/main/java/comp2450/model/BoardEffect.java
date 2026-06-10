@@ -2,6 +2,8 @@ package comp2450.model;
 
 import com.google.common.base.Preconditions;
 
+import java.io.StreamCorruptedException;
+
 public class BoardEffect {
     private Effect effect;
     private Coordinate coordinate;
@@ -18,14 +20,13 @@ public class BoardEffect {
 
     public Effect getEffect() {
         checkBoardEffect();
-        return effect;
+        return this.effect;
     }
 
     public Coordinate getCoordinate() {
         checkBoardEffect();
-        return coordinate;
+        return this.coordinate;
     }
-
     private void checkBoardEffect() {
         Preconditions.checkNotNull(effect, "Effect should not be null.");
         Preconditions.checkNotNull(coordinate, "Coordinate should not be null.");

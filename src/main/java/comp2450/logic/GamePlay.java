@@ -1,9 +1,8 @@
 package comp2450.logic;
 
 import com.google.common.base.Preconditions;
-import comp2450.model.Game;
-import comp2450.model.Player;
-import comp2450.model.Turn;
+import comp2450.exceptions.InvalidMoveException;
+import comp2450.model.*;
 
 public class GamePlay {
 

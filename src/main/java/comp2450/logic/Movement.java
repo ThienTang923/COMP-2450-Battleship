@@ -50,13 +50,12 @@ public class Movement {
         Preconditions.checkNotNull(board, "board cannot be null");
         Preconditions.checkNotNull(ship, "ship cannot be null");
         Preconditions.checkNotNull(direction, "direction cannot be null");
-        Preconditions.checkArgument(ship.getShipType() == ShipType.NORMAL, "ship must be normal ship");
 
         if (ship.getShipType() != ShipType.NORMAL) {
             throw new InvalidMoveException("Only NORMAL ship can use normal movement.");
         }
 
-        Coordinate oldCoordinate = ship.getCoordinates().get(0);
+        Coordinate oldCoordinate = ship.getCoordinate();
         Coordinate newCoordinate = getCoordinateAfterMove(board, oldCoordinate, direction);
 
         Cell newCell = board.getCell(newCoordinate);
@@ -65,11 +64,8 @@ public class Movement {
             throw new InvalidMoveException("Ship cannot move there because another ship already ocupies that location.");
         }
 
-        ArrayList<Coordinate> newCoordinates = new ArrayList<>();
-        newCoordinates.add(newCoordinate);
-
         board.removeShip(ship);
-        ship.move(newCoordinates);
+        ship.move(newCoordinate);
         board.addShip(ship);
 
         return true;
@@ -80,7 +76,6 @@ public class Movement {
         Preconditions.checkNotNull(board, "board cannot be null");
         Preconditions.checkNotNull(ship, "ship cannot be null");
         Preconditions.checkNotNull(target, "target cannot be null");
-        Preconditions.checkArgument(ship.getShipType() == ShipType.SUBMARINE,"ship must be submarine");
 
         if (ship.getShipType() != ShipType.SUBMARINE) {
             throw new InvalidMoveException("Only SUBMARINE ships can use submarine movement.");
@@ -100,18 +95,16 @@ public class Movement {
             throw new InvalidMoveException("Submarine cannot move there because another ship already occupies that location");
         }
 
-        Coordinate start = ship.getCoordinates().get(0);
+        Coordinate start = ship.getCoordinate();
         boolean hasPath = this.pathFinder.hasSubmarine(board, start, target);
 
         if (!hasPath) {
             throw new InvalidMoveException("Submarine cannot move there. The target must be connected by attacked cells.");
         }
 
-        ArrayList<Coordinate> newCoordinates = new ArrayList<>();
-        newCoordinates.add(target);
 
         board.removeShip(ship);
-        ship.move(newCoordinates);
+        ship.move(target);
         board.addShip(ship);
 
         return true;

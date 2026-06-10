@@ -29,19 +29,20 @@ public class Player {
     public void addShip(Ship ship) {
         checkPlayer();
 
+        Preconditions.checkState(ships.contains(ship),"player does not own the ship");
         Preconditions.checkNotNull(ship, "ship cannot be null");
         ships.add(ship);
 
         checkPlayer();
     }
 
-    public void moveShip(Ship ship, List<Coordinate> newCoordinates) {
+    public void moveShip(Ship ship, Coordinate newCoordinate) {
         checkPlayer();
-        Preconditions.checkNotNull(ship);
+        Preconditions.checkNotNull(ship, "Ship cannot be null.");
         Preconditions.checkState(ships.contains(ship),"player does not own the ship");
-        Preconditions.checkNotNull(newCoordinates, "new coordinates cannot be null");
+        Preconditions.checkNotNull(newCoordinate, "new coordinates cannot be null");
 
-        ship.move(newCoordinates);
+        ship.move(newCoordinate);
         checkPlayer();
     }
 
@@ -84,16 +85,11 @@ public class Player {
         return missedAttacks;
     }
 
-    public void placeShip(Ship ship) {
-        checkPlayer();
-        Preconditions.checkNotNull(ship);
-        addShip(ship);
-        checkPlayer();
-    }
-
     public void removeShip(Ship ship) {
         checkPlayer();
+
         Preconditions.checkNotNull(ship, "ship can no be null");
+        Preconditions.checkState(ships.contains(ship),"player does not own the ship");
 
         this.ships.remove(ship);
         

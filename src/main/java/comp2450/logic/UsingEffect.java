@@ -15,6 +15,7 @@ public class UsingEffect {
     }
 
     public void placeChosenEffectRandomly(Board board, Effect effect) {
+        checkUsingEffect();
         Preconditions.checkNotNull(board, "board cannot be null");
         Preconditions.checkNotNull(effect, "effect cannot be null");
 
@@ -31,6 +32,7 @@ public class UsingEffect {
     }
 
     private ArrayList<Coordinate> getEmptyCoordinate(Board board) {
+        checkUsingEffect();
         Preconditions.checkNotNull(board, "board cannot be null");
 
         ArrayList<Coordinate> emptyCoordinates = new ArrayList<>();
@@ -50,6 +52,7 @@ public class UsingEffect {
     }
 
     private boolean hasEffectAt(Board board, Coordinate coordinate) {
+        checkUsingEffect();
         Preconditions.checkNotNull(board, "Board cannot be null");
         Preconditions.checkNotNull(coordinate, "coordinate cannot be null");
 
@@ -75,13 +78,13 @@ public class UsingEffect {
         return null;
     }
 
-    public String applyEffectPresent(Board currentBoard, Board enemyBoard, Ship ship) {
-
+    public String applyEffectIfPresent(Board currentBoard, Board enemyBoard, Ship ship) {
+        checkUsingEffect();
         Preconditions.checkNotNull(currentBoard, "board cannot be null");
         Preconditions.checkNotNull(ship, "ship cannot be null");
         Preconditions.checkNotNull(enemyBoard,"ship cannot be null");
 
-        Coordinate shipCoordinate = ship.getCoordinates().get(0);
+        Coordinate shipCoordinate = ship.getCoordinate();
         BoardEffect boardEffect = findEffect(currentBoard, shipCoordinate);
 
         if (boardEffect == null) {
@@ -90,12 +93,15 @@ public class UsingEffect {
 
         String message = applyEffect(ship, boardEffect.getEffect(), enemyBoard, shipCoordinate);
         currentBoard.removeEffect(boardEffect);
+
+        checkUsingEffect();
         return message;
 
     }
 
     public String applyEffect(Ship ship, Effect effect, Board enemyBoard, Coordinate shipCoordinate) {
 
+        checkUsingEffect();
         Preconditions.checkNotNull(ship, "ship cannot be null");
         Preconditions.checkNotNull(effect, "effect cannot be null");
         Preconditions.checkNotNull(enemyBoard, "enemy board cannot be null");
@@ -125,6 +131,7 @@ public class UsingEffect {
     }
 
     private boolean hasEnemyShipNearby(Board enemyBoard, Coordinate center) {
+        checkUsingEffect();
         Preconditions.checkNotNull(enemyBoard, "enemy board cannot be null");
         Preconditions.checkNotNull(center, "center coordinate cannot be null");
 
@@ -137,6 +144,7 @@ public class UsingEffect {
     }
 
     private boolean hasShipAt(Board board, int x, int y) {
+        checkUsingEffect();
         Preconditions.checkNotNull(board, "Board cannot be null.");
 
         if (x <0 || y <0 || x>= board.getXSize() || y >= board.getYSize()) {
@@ -146,5 +154,9 @@ public class UsingEffect {
         Coordinate coordinate = new Coordinate(x, y);
 
         return board.getCell(coordinate).containShip();
+    }
+
+    private void checkUsingEffect() {
+        Preconditions.checkNotNull(this.random, "random cannot be null.");
     }
 }
