@@ -57,7 +57,7 @@ public class InputReader {
         int y = readInt("Enter y: ");
 
         if (x < 0|| y<0) {
-            throw new InvalidInputException("Invalid coordinate. x and y must be greater. ");
+            throw new InvalidInputException("Invalid coordinate. x and y must be 0 or greater. Example: 2 3.");
         }
 
         return new Coordinate(x, y);
